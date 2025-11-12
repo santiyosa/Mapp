@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Maintenance App</string>
+    
+    <!-- Navigation -->
+    <string name="nav_home">Inicio</string>
+    <string name="nav_search">Buscar</string>
+    <string name="nav_settings">Configuración</string>
+    
+    <!-- Common -->
+    <string name="ok">Aceptar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="save">Guardar</string>
+    <string name="edit">Editar</string>
+    <string name="delete">Eliminar</string>
+    <string name="add">Agregar</string>
+    <string name="search">Buscar</string>
+    <string name="loading">Cargando...</string>
+    <string name="error">Error</string>
+    <string name="success">Éxito</string>
+    
+    <!-- Record related -->
+    <string name="record_name">Nombre del registro</string>
+    <string name="record_description">Descripción</string>
+    <string name="record_created_date">Fecha de creación</string>
+    <string name="record_last_maintenance">Último mantenimiento</string>
+    <string name="add_record">Agregar registro</string>
+    <string name="edit_record">Editar registro</string>
+    <string name="delete_record">Eliminar registro</string>
+    <string name="record_deleted">Registro eliminado</string>
+    <string name="record_saved">Registro guardado</string>
+    
+    <!-- Maintenance related -->
+    <string name="maintenance_date">Fecha de mantenimiento</string>
+    <string name="maintenance_description">Descripción del mantenimiento</string>
+    <string name="maintenance_cost">Costo</string>
+    <string name="maintenance_type">Tipo de mantenimiento</string>
+    <string name="add_maintenance">Agregar mantenimiento</string>
+    <string name="edit_maintenance">Editar mantenimiento</string>
+    <string name="delete_maintenance">Eliminar mantenimiento</string>
+    <string name="maintenance_deleted">Mantenimiento eliminado</string>
+    <string name="maintenance_saved">Mantenimiento guardado</string>
+    
+    <!-- Settings -->
+    <string name="settings_theme">Tema</string>
+    <string name="settings_theme_light">Claro</string>
+    <string name="settings_theme_dark">Oscuro</string>
+    <string name="settings_theme_system">Sistema</string>
+    <string name="settings_font_size">Tamaño de fuente</string>
+    <string name="settings_biometric">Autenticación biométrica</string>
+    <string name="settings_backup">Respaldo</string>
+    <string name="settings_backup_google_drive">Respaldo en Google Drive</string>
+    
+    <!-- Biometric -->
+    <string name="biometric_title">Verificación biométrica</string>
+    <string name="biometric_subtitle">Usa tu huella dactilar para acceder</string>
+    <string name="biometric_description">Coloca tu dedo en el sensor</string>
+    
+    <!-- Backup -->
+    <string name="backup_frequency">Frecuencia de respaldo</string>
+    <string name="backup_wifi_only">Solo con WiFi</string>
+    <string name="backup_last_backup">Último respaldo</string>
+    <string name="backup_now">Respaldar ahora</string>
+    <string name="backup_restore">Restaurar</string>
+    
+    <!-- Share -->
+    <string name="share_record">Compartir registro</string>
+    <string name="share_maintenance">Compartir mantenimiento</string>
+    <string name="share_via_whatsapp">Compartir por WhatsApp</string>
+    
+    <!-- Validation messages -->
+    <string name="error_field_required">Este campo es obligatorio</string>
+    <string name="error_invalid_cost">El costo no es válido</string>
+    <string name="error_network">Error de conexión</string>
+    <string name="error_permission_camera">Se necesita permiso de cámara</string>
+    <string name="error_permission_storage">Se necesita permiso de almacenamiento</string>
+    
+    <!-- Empty states -->
+    <string name="empty_records">No hay registros</string>
+    <string name="empty_maintenances">No hay mantenimientos</string>
+    <string name="empty_search_results">No se encontraron resultados</string>
+    
+    <!-- Camera -->
+    <string name="camera_capture">Tomar foto</string>
+    <string name="camera_gallery">Galería</string>
+    <string name="image_description">Imagen del registro</string>
+    
+    <!-- Navigation and Screen titles -->
+    <string name="nav_back">Atrás</string>
+    <string name="record_details">Detalles del registro</string>
+    <string name="create_record">Crear registro</string>
+    <string name="maintenance_history">Historial de mantenimiento</string>
+    <string name="no_records">No hay registros disponibles</string>
+    <string name="create_first_record">Crear primer registro</string>
+    <string name="loading_records">Cargando registros...</string>
+    <string name="loading_record">Cargando registro...</string>
+    <string name="retry">Reintentar</string>
+    <string name="no_maintenance_records">No hay registros de mantenimiento</string>
+    <string name="add_first_maintenance">Agregar primer mantenimiento</string>
+    <string name="created">Creado</string>
+    <string name="last_maintenance">Último mantenimiento</string>
+    <string name="cost_format">$%.2f</string>
+    
+    <!-- Form fields -->
+    <string name="title">Título</string>
+    <string name="category">Categoría</string>
+    <string name="description">Descripción</string>
+    <string name="save_record">Guardar registro</string>
+    <string name="save_changes">Guardar cambios</string>
+    <string name="confirm_delete">Confirmar eliminación</string>
+    <string name="delete_record_confirmation">¿Estás seguro de que quieres eliminar este registro? Esta acción no se puede deshacer.</string>
+</resources>
