@@ -10,11 +10,18 @@ import android.content.Context
 import com.maintenance.app.data.database.dao.AppSettingsDAO
 import com.maintenance.app.data.database.dao.MaintenanceDAO
 import com.maintenance.app.data.database.dao.RecordDAO
+import com.maintenance.app.data.database.dao.SearchDAO
+import com.maintenance.app.data.database.dao.SearchHistoryDAO
 import com.maintenance.app.data.database.dao.UISettingsDAO
+import com.maintenance.app.data.database.daos.MaintenanceDraftDao
 import com.maintenance.app.data.database.entities.AppSettingsEntity
 import com.maintenance.app.data.database.entities.MaintenanceEntity
 import com.maintenance.app.data.database.entities.RecordEntity
+import com.maintenance.app.data.database.entities.SearchHistoryEntity
 import com.maintenance.app.data.database.entities.UISettingsEntity
+import com.maintenance.app.data.database.entities.MaintenanceDraftEntity
+import com.maintenance.app.data.database.entities.SettingsEntity
+import com.maintenance.app.data.database.dao.SettingsDao
 
 /**
  * Room Database class for the Maintenance App.
@@ -26,9 +33,12 @@ import com.maintenance.app.data.database.entities.UISettingsEntity
         RecordEntity::class,
         MaintenanceEntity::class,
         UISettingsEntity::class,
-        AppSettingsEntity::class
+        AppSettingsEntity::class,
+        MaintenanceDraftEntity::class,
+        SearchHistoryEntity::class,
+        SettingsEntity::class
     ],
-    version = 1,
+    version = 4,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -38,6 +48,10 @@ abstract class MaintenanceDatabase : RoomDatabase() {
     abstract fun maintenanceDao(): MaintenanceDAO
     abstract fun uiSettingsDao(): UISettingsDAO
     abstract fun appSettingsDao(): AppSettingsDAO
+    abstract fun maintenanceDraftDao(): MaintenanceDraftDao
+    abstract fun searchDao(): SearchDAO
+    abstract fun searchHistoryDao(): SearchHistoryDAO
+    abstract fun settingsDao(): SettingsDao
 
     companion object {
         const val DATABASE_NAME = "maintenance_database"
@@ -54,8 +68,7 @@ abstract class MaintenanceDatabase : RoomDatabase() {
                 )
                     .addTypeConverter(Converters())
                     .addCallback(DatabaseCallback())
-                    // Add migrations as needed
-                    // .addMigrations(MIGRATION_1_2)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
                     .build()
                 INSTANCE = instance
                 instance
@@ -79,16 +92,87 @@ abstract class MaintenanceDatabase : RoomDatabase() {
         }
 
         /**
-         * Example migration from version 1 to 2.
-         * Uncomment and modify as needed for future schema changes.
+         * Migration from version 1 to 2 - adds maintenance drafts table.
          */
-        /*
         val MIGRATION_1_2 = object : Migration(1, 2) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                // Add migration logic here
-                // Example: database.execSQL("ALTER TABLE records ADD COLUMN new_column TEXT")
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS maintenance_drafts (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        record_id INTEGER NOT NULL,
+                        description TEXT NOT NULL DEFAULT '',
+                        type TEXT NOT NULL DEFAULT '',
+                        cost TEXT NOT NULL DEFAULT '',
+                        currency TEXT NOT NULL DEFAULT 'USD',
+                        performed_by TEXT NOT NULL DEFAULT '',
+                        location TEXT NOT NULL DEFAULT '',
+                        duration_minutes TEXT NOT NULL DEFAULT '',
+                        parts_replaced TEXT NOT NULL DEFAULT '',
+                        notes TEXT NOT NULL DEFAULT '',
+                        priority TEXT NOT NULL DEFAULT 'MEDIUM',
+                        is_recurring INTEGER NOT NULL DEFAULT 0,
+                        recurrence_interval_days TEXT NOT NULL DEFAULT '',
+                        selected_images TEXT NOT NULL DEFAULT '',
+                        created_at TEXT NOT NULL,
+                        updated_at TEXT NOT NULL,
+                        FOREIGN KEY (record_id) REFERENCES records(id) ON DELETE CASCADE
+                    )
+                    """.trimIndent()
+                )
+                
+                // Create index for faster lookups
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS index_maintenance_drafts_record_id ON maintenance_drafts(record_id)"
+                )
             }
         }
-        */
+
+        /**
+         * Migration from version 2 to 3 - adds search history table.
+         */
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS search_history (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        query TEXT NOT NULL,
+                        search_criteria TEXT NOT NULL,
+                        result_count INTEGER NOT NULL,
+                        timestamp INTEGER NOT NULL
+                    )
+                    """.trimIndent()
+                )
+                
+                // Create index for faster timestamp-based queries
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS index_search_history_timestamp ON search_history(timestamp)"
+                )
+            }
+        }
+
+        /**
+         * Migration from version 3 to 4 - adds app settings table.
+         */
+        val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS user_app_settings (
+                        id INTEGER PRIMARY KEY NOT NULL,
+                        theme_mode TEXT NOT NULL DEFAULT 'SYSTEM',
+                        language TEXT NOT NULL DEFAULT 'SPANISH',
+                        enable_notifications INTEGER NOT NULL DEFAULT 1,
+                        enable_biometric INTEGER NOT NULL DEFAULT 0,
+                        enable_auto_backup INTEGER NOT NULL DEFAULT 1,
+                        backup_frequency_days INTEGER NOT NULL DEFAULT 7,
+                        enable_data_collection INTEGER NOT NULL DEFAULT 0,
+                        last_updated INTEGER NOT NULL
+                    )
+                    """.trimIndent()
+                )
+            }
+        }
     }
 }

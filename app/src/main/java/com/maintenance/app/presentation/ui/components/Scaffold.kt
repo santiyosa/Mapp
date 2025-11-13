@@ -73,7 +73,7 @@ fun MainScaffold(
  */
 @Composable
 fun LoadingState(
-    message: String = "Loading..."
+    @Suppress("UNUSED_PARAMETER") message: String = "Loading..."
 ) {
     Box(
         modifier = Modifier.fillMaxSize(),

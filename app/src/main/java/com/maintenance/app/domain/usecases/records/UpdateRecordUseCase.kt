@@ -20,7 +20,7 @@ class UpdateRecordUseCase @Inject constructor(
         require(parameters.record.name.isNotBlank()) { "Record name cannot be blank" }
         
         // Check if record exists
-        val existingRecord = when (val result = recordRepository.getRecordById(parameters.record.id)) {
+        when (val result = recordRepository.getRecordById(parameters.record.id)) {
             is Result.Success -> result.data
             is Result.Error -> throw result.exception ?: Exception(result.message)
             is Result.Loading -> throw Exception("Unexpected loading state")

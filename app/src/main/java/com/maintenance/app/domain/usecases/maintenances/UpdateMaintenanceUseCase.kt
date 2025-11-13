@@ -21,7 +21,7 @@ class UpdateMaintenanceUseCase @Inject constructor(
         require(parameters.maintenance.type.isNotBlank()) { "Maintenance type cannot be blank" }
         
         // Check if maintenance exists
-        val existingMaintenance = when (val result = maintenanceRepository.getMaintenanceById(parameters.maintenance.id)) {
+        when (val result = maintenanceRepository.getMaintenanceById(parameters.maintenance.id)) {
             is Result.Success -> result.data
             is Result.Error -> throw result.exception ?: Exception(result.message)
             is Result.Loading -> throw Exception("Unexpected loading state")

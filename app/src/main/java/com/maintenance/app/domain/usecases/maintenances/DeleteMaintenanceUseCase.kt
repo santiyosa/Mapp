@@ -17,7 +17,7 @@ class DeleteMaintenanceUseCase @Inject constructor(
         require(parameters.maintenanceId > 0) { "Maintenance ID must be valid" }
         
         // Check if maintenance exists
-        val existingMaintenance = when (val result = maintenanceRepository.getMaintenanceById(parameters.maintenanceId)) {
+        when (val result = maintenanceRepository.getMaintenanceById(parameters.maintenanceId)) {
             is Result.Success -> result.data
             is Result.Error -> throw result.exception ?: Exception(result.message)
             is Result.Loading -> throw Exception("Unexpected loading state")

@@ -20,7 +20,7 @@ class DeleteRecordUseCase @Inject constructor(
         require(parameters.recordId > 0) { "Record ID must be valid" }
         
         // Check if record exists
-        val existingRecord = when (val result = recordRepository.getRecordById(parameters.recordId)) {
+        when (val result = recordRepository.getRecordById(parameters.recordId)) {
             is Result.Success -> result.data
             is Result.Error -> throw result.exception ?: Exception(result.message)
             is Result.Loading -> throw Exception("Unexpected loading state")

@@ -1,9 +1,15 @@
 package com.maintenance.app.di
 
+import com.maintenance.app.data.repositories.MaintenanceDraftRepositoryImpl
+import com.maintenance.app.data.repositories.SearchRepositoryImpl
+import com.maintenance.app.data.repositories.SettingsRepositoryImpl
 import com.maintenance.app.data.repository.MaintenanceRepositoryImpl
 import com.maintenance.app.data.repository.RecordRepositoryImpl
+import com.maintenance.app.domain.repository.MaintenanceDraftRepository
 import com.maintenance.app.domain.repository.MaintenanceRepository
 import com.maintenance.app.domain.repository.RecordRepository
+import com.maintenance.app.domain.repository.SearchRepository
+import com.maintenance.app.domain.repository.SettingsRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -29,4 +35,22 @@ abstract class RepositoryModule {
     abstract fun bindMaintenanceRepository(
         maintenanceRepositoryImpl: MaintenanceRepositoryImpl
     ): MaintenanceRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindMaintenanceDraftRepository(
+        maintenanceDraftRepositoryImpl: MaintenanceDraftRepositoryImpl
+    ): MaintenanceDraftRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindSearchRepository(
+        searchRepositoryImpl: SearchRepositoryImpl
+    ): SearchRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindSettingsRepository(
+        settingsRepositoryImpl: SettingsRepositoryImpl
+    ): SettingsRepository
 }

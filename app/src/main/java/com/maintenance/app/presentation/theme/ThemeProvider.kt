@@ -15,7 +15,6 @@ fun ThemeProvider(
     content: @Composable () -> Unit
 ) {
     val themeState by themeViewModel.themeState.collectAsState()
-    val context = LocalContext.current
 
     MaintenanceAppTheme(
         darkTheme = when (themeState.themeMode) {

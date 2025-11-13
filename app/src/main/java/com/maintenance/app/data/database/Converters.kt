@@ -3,24 +3,23 @@ package com.maintenance.app.data.database
 import androidx.room.TypeConverter
 import java.math.BigDecimal
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
+import java.time.ZoneOffset
 
 /**
  * Type converters for Room database to handle complex types.
+ * Using timestamp approach for API 24+ compatibility.
  */
 class Converters {
 
-    private val dateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
-
     @TypeConverter
-    fun fromLocalDateTime(dateTime: LocalDateTime?): String? {
-        return dateTime?.format(dateTimeFormatter)
+    fun fromLocalDateTime(dateTime: LocalDateTime?): Long? {
+        return dateTime?.toEpochSecond(ZoneOffset.UTC)
     }
 
     @TypeConverter
-    fun toLocalDateTime(dateTimeString: String?): LocalDateTime? {
-        return dateTimeString?.let {
-            LocalDateTime.parse(it, dateTimeFormatter)
+    fun toLocalDateTime(timestamp: Long?): LocalDateTime? {
+        return timestamp?.let {
+            LocalDateTime.ofEpochSecond(it, 0, ZoneOffset.UTC)
         }
     }
 

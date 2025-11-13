@@ -6,7 +6,11 @@ import com.maintenance.app.data.database.MaintenanceDatabase
 import com.maintenance.app.data.database.dao.AppSettingsDAO
 import com.maintenance.app.data.database.dao.MaintenanceDAO
 import com.maintenance.app.data.database.dao.RecordDAO
+import com.maintenance.app.data.database.dao.SearchDAO
+import com.maintenance.app.data.database.dao.SearchHistoryDAO
+import com.maintenance.app.data.database.dao.SettingsDao
 import com.maintenance.app.data.database.dao.UISettingsDAO
+import com.maintenance.app.data.database.daos.MaintenanceDraftDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -47,5 +51,25 @@ object DatabaseModule {
     @Provides
     fun provideAppSettingsDAO(database: MaintenanceDatabase): AppSettingsDAO {
         return database.appSettingsDao()
+    }
+
+    @Provides
+    fun provideMaintenanceDraftDao(database: MaintenanceDatabase): MaintenanceDraftDao {
+        return database.maintenanceDraftDao()
+    }
+
+    @Provides
+    fun provideSearchDao(database: MaintenanceDatabase): SearchDAO {
+        return database.searchDao()
+    }
+
+    @Provides
+    fun provideSearchHistoryDao(database: MaintenanceDatabase): SearchHistoryDAO {
+        return database.searchHistoryDao()
+    }
+
+    @Provides
+    fun provideSettingsDao(database: MaintenanceDatabase): SettingsDao {
+        return database.settingsDao()
     }
 }

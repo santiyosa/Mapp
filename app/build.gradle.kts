@@ -58,6 +58,12 @@ android {
     }
 }
 
+kapt {
+    arguments {
+        arg("room.schemaLocation", "$projectDir/schemas")
+    }
+}
+
 dependencies {
     // Core Android
     implementation("androidx.core:core-ktx:1.12.0")
@@ -72,8 +78,15 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("androidx.navigation:navigation-compose:2.7.5")
     
-    // ViewModel
+    // ViewModel & Lifecycle
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0")
+    
+    // Material Icons Extended
+    implementation("androidx.compose.material:material-icons-extended")
+    
+    // JSON & Serialization
+    implementation("com.google.code.gson:gson:2.10.1")
     
     // Room Database
     implementation("androidx.room:room-runtime:2.6.1")
@@ -100,9 +113,6 @@ dependencies {
     implementation("com.google.apis:google-api-services-drive:v3-rev20220815-2.0.0")
     implementation("com.google.api-client:google-api-client-android:2.2.0")
     implementation("com.google.auth:google-auth-library-oauth2-http:1.19.0")
-    
-    // JSON & Serialization
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
     
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")

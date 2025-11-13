@@ -7,12 +7,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.maintenance.app.presentation.ui.screens.home.HomeScreen
-import com.maintenance.app.presentation.ui.screens.SearchScreen
-import com.maintenance.app.presentation.ui.screens.SettingsScreen
+import com.maintenance.app.presentation.ui.screens.search.SearchScreen
+import com.maintenance.app.presentation.screens.SettingsScreen
 import com.maintenance.app.presentation.ui.screens.detail.RecordDetailScreen
 import com.maintenance.app.presentation.ui.screens.create.CreateRecordScreen
 import com.maintenance.app.presentation.ui.screens.edit.EditRecordScreen
-import com.maintenance.app.presentation.ui.screens.CreateMaintenanceScreen
+import com.maintenance.app.presentation.ui.screens.maintenance.create.CreateMaintenanceScreen
+import com.maintenance.app.presentation.ui.screens.maintenance.edit.EditMaintenanceScreen
 
 /**
  * Main navigation host for the app.
@@ -32,11 +33,25 @@ fun MainNavHost(
         }
         
         composable(Screen.Search.route) {
-            SearchScreen(navController = navController)
+            SearchScreen(
+                onNavigateToRecord = { recordId ->
+                    navController.navigate(Screen.RecordDetail.createRoute(recordId))
+                },
+                onNavigateToMaintenance = { maintenanceId ->
+                    navController.navigate(Screen.MaintenanceDetail.createRoute(maintenanceId))
+                },
+                onNavigateBack = {
+                    navController.popBackStack()
+                }
+            )
         }
         
         composable(Screen.Settings.route) {
-            SettingsScreen(navController = navController)
+            SettingsScreen(
+                onNavigateBack = {
+                    navController.popBackStack()
+                }
+            )
         }
         
         // Record screens
@@ -87,6 +102,22 @@ fun MainNavHost(
             CreateMaintenanceScreen(
                 recordId = recordId,
                 navController = navController
+            )
+        }
+
+        // Edit maintenance screen
+        composable(
+            route = Screen.EditMaintenance.route,
+            arguments = listOf(
+                navArgument(Screen.MAINTENANCE_ID_ARG) {
+                    type = NavType.LongType
+                }
+            )
+        ) { backStackEntry ->
+            val maintenanceId = backStackEntry.arguments?.getLong(Screen.MAINTENANCE_ID_ARG) ?: 0L
+            EditMaintenanceScreen(
+                navController = navController,
+                maintenanceId = maintenanceId
             )
         }
 

@@ -1,25 +1,37 @@
 package com.maintenance.app.presentation.ui.screens.detail
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.*
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import kotlinx.coroutines.launch
 import com.maintenance.app.R
 import com.maintenance.app.presentation.navigation.Screen
 import com.maintenance.app.presentation.ui.components.*
 import com.maintenance.app.presentation.viewmodels.detail.RecordDetailViewModel
 import com.maintenance.app.presentation.viewmodels.detail.RecordDetailUiState
+import com.maintenance.app.utils.ImageManager
 
 /**
  * Screen for displaying record details and maintenance history.
@@ -120,6 +132,11 @@ fun RecordDetailScreen(
                                 onClick = {
                                     navController.navigate(
                                         Screen.MaintenanceDetail.createRoute(maintenance.id)
+                                    )
+                                },
+                                onEditClick = {
+                                    navController.navigate(
+                                        Screen.EditMaintenance.createRoute(maintenance.id)
                                     )
                                 }
                             )
@@ -244,7 +261,8 @@ private fun EmptyMaintenanceCard(
 @Composable
 private fun MaintenanceCard(
     maintenance: com.maintenance.app.domain.model.Maintenance,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onEditClick: (() -> Unit)? = null
 ) {
     Card(
         onClick = onClick,
@@ -256,35 +274,134 @@ private fun MaintenanceCard(
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.Top
             ) {
-                Text(
-                    text = maintenance.type,
-                    style = MaterialTheme.typography.titleSmall
-                )
-                Text(
-                    text = maintenance.maintenanceDate.toString(),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Column(modifier = Modifier.weight(1f)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = maintenance.type,
+                            style = MaterialTheme.typography.titleSmall,
+                            modifier = Modifier.weight(1f)
+                        )
+                        Text(
+                            text = maintenance.maintenanceDate.format(
+                                java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")
+                            ),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    
+                    if (maintenance.description.isNotBlank()) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = maintenance.description,
+                            style = MaterialTheme.typography.bodySmall,
+                            maxLines = 2
+                        )
+                    }
+                    
+                    maintenance.cost?.let { cost ->
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "${maintenance.currency.takeIf { it.isNotBlank() } ?: "USD"} $cost",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                    
+                    // Image thumbnails
+                    if (maintenance.imagesPaths.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        ImageThumbnails(
+                            imagePaths = maintenance.imagesPaths.take(3), // Show max 3 thumbnails
+                            totalImages = maintenance.imagesPaths.size
+                        )
+                    }
+                }
+                
+                // Edit button
+                onEditClick?.let { editClick ->
+                    IconButton(onClick = editClick) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "Editar mantenimiento",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ImageThumbnails(
+    imagePaths: List<String>,
+    totalImages: Int
+) {
+    val context = LocalContext.current
+    val imageManager = remember { ImageManager(context) }
+    val coroutineScope = rememberCoroutineScope()
+    
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        items(imagePaths) { imagePath ->
+            var bitmap by remember(imagePath) { mutableStateOf<ImageBitmap?>(null) }
+            
+            LaunchedEffect(imagePath) {
+                coroutineScope.launch {
+                    bitmap = imageManager.loadBitmapFromPath(imagePath)?.asImageBitmap()
+                }
             }
             
-            if (maintenance.description.isNotBlank()) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = maintenance.description,
-                    style = MaterialTheme.typography.bodySmall,
-                    maxLines = 2
+            bitmap?.let { bmp ->
+                Image(
+                    bitmap = bmp,
+                    contentDescription = "Mantenimiento imagen",
+                    modifier = Modifier
+                        .size(60.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                    contentScale = ContentScale.Crop
                 )
-            }
-            
-            maintenance.cost?.let { cost ->
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = stringResource(R.string.cost_format, cost),
-                    style = MaterialTheme.typography.labelSmall,
+            } ?: Box(
+                modifier = Modifier
+                    .size(60.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(20.dp),
                     color = MaterialTheme.colorScheme.primary
                 )
+            }
+        }
+        
+        // Show "+X more" indicator if there are more images
+        if (totalImages > imagePaths.size) {
+            item {
+                Box(
+                    modifier = Modifier
+                        .size(60.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(MaterialTheme.colorScheme.secondaryContainer),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "+${totalImages - imagePaths.size}",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
         }
     }

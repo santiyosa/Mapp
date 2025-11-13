@@ -77,7 +77,7 @@ class CreateRecordViewModel @Inject constructor(
             
             // Create record object for validation
             val now = LocalDateTime.now()
-            val record = Record(
+            Record(
                 id = 0, // Will be assigned by database
                 name = title.trim(),
                 description = description.trim(),

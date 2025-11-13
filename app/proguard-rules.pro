@@ -50,3 +50,8 @@
     public static **[] values();
     public static ** valueOf(java.lang.String);
 }
+
+# Ignore missing classes for Apache HttpClient
+-dontwarn javax.naming.**
+-dontwarn org.ietf.jgss.**
+-dontwarn org.apache.http.**
