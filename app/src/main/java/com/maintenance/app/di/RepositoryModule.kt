@@ -1,10 +1,12 @@
 package com.maintenance.app.di
 
+import com.maintenance.app.data.repositories.BackupRepositoryImpl
 import com.maintenance.app.data.repositories.MaintenanceDraftRepositoryImpl
 import com.maintenance.app.data.repositories.SearchRepositoryImpl
 import com.maintenance.app.data.repositories.SettingsRepositoryImpl
 import com.maintenance.app.data.repository.MaintenanceRepositoryImpl
 import com.maintenance.app.data.repository.RecordRepositoryImpl
+import com.maintenance.app.domain.repositories.BackupRepository
 import com.maintenance.app.domain.repository.MaintenanceDraftRepository
 import com.maintenance.app.domain.repository.MaintenanceRepository
 import com.maintenance.app.domain.repository.RecordRepository
@@ -53,4 +55,10 @@ abstract class RepositoryModule {
     abstract fun bindSettingsRepository(
         settingsRepositoryImpl: SettingsRepositoryImpl
     ): SettingsRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindBackupRepository(
+        backupRepositoryImpl: BackupRepositoryImpl
+    ): BackupRepository
 }

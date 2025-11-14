@@ -3,6 +3,7 @@ package com.maintenance.app.di
 import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.maintenance.app.utils.GoogleDriveService
 import com.maintenance.app.utils.ShareManager
 import com.maintenance.app.utils.PermissionManager
 import dagger.Module
@@ -43,5 +44,11 @@ object UtilityModule {
     @Singleton
     fun providePermissionManager(@ApplicationContext context: Context): PermissionManager {
         return PermissionManager(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideGoogleDriveService(@ApplicationContext context: Context): GoogleDriveService {
+        return GoogleDriveService(context)
     }
 }
