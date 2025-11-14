@@ -7,7 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.maintenance.app.presentation.ui.screens.home.HomeScreen
-import com.maintenance.app.presentation.ui.screens.search.SearchScreen
+import com.maintenance.app.presentation.ui.screens.search.SearchScreenAdvanced
 import com.maintenance.app.presentation.screens.SettingsScreen
 import com.maintenance.app.presentation.ui.screens.detail.RecordDetailScreen
 import com.maintenance.app.presentation.ui.screens.create.CreateRecordScreen
@@ -34,17 +34,7 @@ fun MainNavHost(
         }
         
         composable(Screen.Search.route) {
-            SearchScreen(
-                onNavigateToRecord = { recordId ->
-                    navController.navigate(Screen.RecordDetail.createRoute(recordId))
-                },
-                onNavigateToMaintenance = { maintenanceId ->
-                    navController.navigate(Screen.MaintenanceDetail.createRoute(maintenanceId))
-                },
-                onNavigateBack = {
-                    navController.popBackStack()
-                }
-            )
+            SearchScreenAdvanced(navController = navController)
         }
         
         composable(Screen.Settings.route) {

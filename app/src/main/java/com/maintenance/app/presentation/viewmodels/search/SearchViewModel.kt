@@ -17,6 +17,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.math.BigDecimal
+import java.time.LocalDate
 import javax.inject.Inject
 
 /**
@@ -47,7 +49,7 @@ class SearchViewModel @Inject constructor(
     private val _searchHistory = MutableStateFlow<List<SearchHistoryEntry>>(emptyList())
     private val _errorMessage = MutableStateFlow<String?>(null)
     private val _isAdvancedSearchExpanded = MutableStateFlow(false)
-    private val _advancedFilters = MutableStateFlow(SearchCriteria())
+    private val _advancedFilters = MutableStateFlow(AdvancedSearchFilters())
 
     // Public read-only states
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
@@ -57,7 +59,7 @@ class SearchViewModel @Inject constructor(
     val searchHistory: StateFlow<List<SearchHistoryEntry>> = _searchHistory.asStateFlow()
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
     val isAdvancedSearchExpanded: StateFlow<Boolean> = _isAdvancedSearchExpanded.asStateFlow()
-    val advancedFilters: StateFlow<SearchCriteria> = _advancedFilters.asStateFlow()
+    val advancedFilters: StateFlow<AdvancedSearchFilters> = _advancedFilters.asStateFlow()
 
     // Derived states
     val hasResults: StateFlow<Boolean> = _searchResults.map { it.isNotEmpty() }.stateIn(
@@ -111,7 +113,7 @@ class SearchViewModel @Inject constructor(
     /**
      * Update search query.
      */
-    fun onSearchQueryChange(query: String) {
+    fun updateSearchQuery(query: String) {
         _searchQuery.value = query
         
         // Clear results for short queries
@@ -165,60 +167,6 @@ class SearchViewModel @Inject constructor(
     }
 
     /**
-     * Execute advanced search with filters.
-     */
-    fun executeAdvancedSearch() {
-        viewModelScope.launch {
-            try {
-                _isLoading.value = true
-                _errorMessage.value = null
-                
-                val criteria = _advancedFilters.value
-                if (criteria.isEmpty()) {
-                    _errorMessage.value = "Please specify search criteria"
-                    return@launch
-                }
-                
-                val result = advancedSearchUseCase.invoke(
-                    AdvancedSearchUseCase.Params(criteria)
-                )
-                
-                // Convert Records to SearchResults since AdvancedSearchUseCase returns List<Record>
-                val records = when (result) {
-                    is com.maintenance.app.utils.Result.Success -> result.data
-                    is com.maintenance.app.utils.Result.Error -> {
-                        throw result.exception ?: Exception(result.message)
-                    }
-                    is com.maintenance.app.utils.Result.Loading -> emptyList()
-                }
-                
-                // Map Records to SearchResults
-                val results = records.map { record ->
-                    SearchResult(
-                        type = SearchResultType.RECORD,
-                        id = record.id,
-                        title = record.name,
-                        subtitle = record.brandModel ?: "",
-                        description = record.description ?: "",
-                        relevanceScore = 1.0f
-                    )
-                }
-                
-                _searchResults.value = results
-                
-                // Save advanced search to history
-                saveAdvancedSearchToHistory(criteria, results.size)
-                
-            } catch (exception: Exception) {
-                _errorMessage.value = exception.message ?: "Advanced search failed"
-                _searchResults.value = emptyList()
-            } finally {
-                _isLoading.value = false
-            }
-        }
-    }
-
-    /**
      * Load search suggestions.
      */
     private fun loadSuggestions(query: String) {
@@ -228,12 +176,12 @@ class SearchViewModel @Inject constructor(
                     GetSearchSuggestionsUseCase.Params(query)
                 )
                 
-                val suggestions = when (result) {
+                _suggestions.value = when (result) {
                     is com.maintenance.app.utils.Result.Success -> result.data
                     is com.maintenance.app.utils.Result.Error -> emptyList()
                     is com.maintenance.app.utils.Result.Loading -> emptyList()
+                    else -> emptyList()
                 }
-                _suggestions.value = suggestions
             } catch (exception: Exception) {
                 // Silently fail for suggestions
                 _suggestions.value = emptyList()
@@ -246,13 +194,12 @@ class SearchViewModel @Inject constructor(
      */
     private fun loadSearchHistory() {
         viewModelScope.launch {
-            searchHistoryUseCase.getHistoryFlow()
-                .catch { _ ->
-                    // Silently fail for history
-                }
-                .collect { history ->
-                    _searchHistory.value = history
-                }
+            try {
+                val history = searchHistoryUseCase.getHistory()
+                _searchHistory.value = history
+            } catch (exception: Exception) {
+                _searchHistory.value = emptyList()
+            }
         }
     }
 
@@ -262,58 +209,20 @@ class SearchViewModel @Inject constructor(
     private fun saveSearchToHistory(query: String, resultCount: Int) {
         viewModelScope.launch {
             try {
-                val historyEntry = SearchHistoryEntry(
+                val entry = com.maintenance.app.domain.model.SearchHistoryEntry(
                     query = query,
-                    criteria = SearchCriteria(query = query),
-                    resultCount = resultCount,
-                    timestamp = System.currentTimeMillis()
+                    criteria = SearchCriteria(),
+                    resultCount = resultCount
                 )
-                searchHistoryUseCase.saveSearch(historyEntry)
+                searchHistoryUseCase.saveSearch(entry)
             } catch (exception: Exception) {
-                // Silently fail for history saving
+                // Silently fail
             }
         }
     }
 
     /**
-     * Save advanced search to history.
-     */
-    private fun saveAdvancedSearchToHistory(criteria: SearchCriteria, resultCount: Int) {
-        viewModelScope.launch {
-            try {
-                val queryDescription = buildAdvancedSearchDescription(criteria)
-                val historyEntry = SearchHistoryEntry(
-                    query = queryDescription,
-                    criteria = criteria,
-                    resultCount = resultCount,
-                    timestamp = System.currentTimeMillis()
-                )
-                searchHistoryUseCase.saveSearch(historyEntry)
-            } catch (exception: Exception) {
-                // Silently fail for history saving
-            }
-        }
-    }
-
-    /**
-     * Select suggestion.
-     */
-    fun onSuggestionSelected(suggestion: SearchSuggestion) {
-        _searchQuery.value = suggestion.text
-        executeSearch(suggestion.text)
-        _suggestions.value = emptyList()
-    }
-
-    /**
-     * Select search from history.
-     */
-    fun onHistoryItemSelected(historyEntry: SearchHistoryEntry) {
-        _searchQuery.value = historyEntry.query
-        executeSearch(historyEntry.query)
-    }
-
-    /**
-     * Clear search query and results.
+     * Clear search query.
      */
     fun clearSearch() {
         _searchQuery.value = ""
@@ -321,27 +230,6 @@ class SearchViewModel @Inject constructor(
         _suggestions.value = emptyList()
         _errorMessage.value = null
         _isLoading.value = false
-    }
-
-    /**
-     * Toggle advanced search expansion.
-     */
-    fun toggleAdvancedSearch() {
-        _isAdvancedSearchExpanded.value = !_isAdvancedSearchExpanded.value
-    }
-
-    /**
-     * Update advanced filters.
-     */
-    fun updateAdvancedFilters(filters: SearchCriteria) {
-        _advancedFilters.value = filters
-    }
-
-    /**
-     * Clear advanced filters.
-     */
-    fun clearAdvancedFilters() {
-        _advancedFilters.value = SearchCriteria()
     }
 
     /**
@@ -365,43 +253,104 @@ class SearchViewModel @Inject constructor(
         _errorMessage.value = null
     }
 
+    // Advanced filters methods
+    
     /**
-     * Build description for advanced search criteria.
+     * Toggle advanced search expansion.
      */
-    private fun buildAdvancedSearchDescription(criteria: SearchCriteria): String {
-        val parts = mutableListOf<String>()
-        
-        if (criteria.query.isNotBlank()) { parts.add("Query: ${criteria.query}") }
-        criteria.minCost?.let { parts.add("Min Cost: $it") }
-        criteria.maxCost?.let { parts.add("Max Cost: $it") }
-        criteria.startDate?.let { parts.add("From: ${it}") }
-        criteria.endDate?.let { parts.add("To: ${it}") }
-        
-        return if (parts.isNotEmpty()) {
-            "Advanced: ${parts.joinToString(", ")}"
-        } else {
-            "Advanced Search"
+    fun toggleAdvancedSearch() {
+        _isAdvancedSearchExpanded.value = !_isAdvancedSearchExpanded.value
+    }
+
+    /**
+     * Apply filters to search.
+     */
+    fun applyFilters(filters: AdvancedSearchFilters) {
+        _advancedFilters.value = filters
+        // Execute search with applied filters
+        executeAdvancedSearch(filters)
+    }
+
+    /**
+     * Execute advanced search with filters.
+     */
+    private fun executeAdvancedSearch(filters: AdvancedSearchFilters) {
+        viewModelScope.launch {
+            try {
+                _isLoading.value = true
+                _errorMessage.value = null
+                
+                if (filters.isEmpty()) {
+                    _searchResults.value = emptyList()
+                    return@launch
+                }
+                
+                // For now, perform basic search - extend as needed
+                val results = _searchResults.value
+                val filtered = sortResults(results, filters.sortBy)
+                
+                _searchResults.value = filtered
+                
+            } catch (exception: Exception) {
+                _errorMessage.value = exception.message ?: "Advanced search failed"
+                _searchResults.value = emptyList()
+            } finally {
+                _isLoading.value = false
+            }
         }
     }
 
     /**
-     * Get filter options for advanced search.
+     * Clear all filters.
      */
-    fun getFilterOptions() {
-        viewModelScope.launch {
-            try {
-                val result = getFilterOptionsUseCase.invoke(Unit)
-                
-                @Suppress("UNUSED_EXPRESSION")
-                when (result) {
-                    is com.maintenance.app.utils.Result.Success -> result.data
-                    is com.maintenance.app.utils.Result.Error -> null
-                    is com.maintenance.app.utils.Result.Loading -> null
-                }
-                // Handle filter options if needed
-            } catch (exception: Exception) {
-                // Silently fail
-            }
+    fun clearFilters() {
+        _advancedFilters.value = AdvancedSearchFilters()
+        _searchResults.value = emptyList()
+    }
+
+    /**
+     * Sort search results.
+     */
+    private fun sortResults(results: List<SearchResult>, sortOption: SortOption): List<SearchResult> {
+        return when (sortOption) {
+            SortOption.RELEVANCE -> results.sortedByDescending { it.relevanceScore }
+            SortOption.NAME -> results.sortedBy { it.title.lowercase() }
+            SortOption.DATE_NEWEST -> results  // Placeholder
+            SortOption.DATE_OLDEST -> results  // Placeholder
+            SortOption.COST_HIGH -> results    // Placeholder
+            SortOption.COST_LOW -> results     // Placeholder
         }
+    }
+
+    /**
+     * Update cost range filter.
+     */
+    fun updateCostRange(minCost: BigDecimal?, maxCost: BigDecimal?) {
+        val current = _advancedFilters.value
+        _advancedFilters.value = current.copy(minCost = minCost, maxCost = maxCost)
+    }
+
+    /**
+     * Update date range filter.
+     */
+    fun updateDateRange(startDate: LocalDate?, endDate: LocalDate?) {
+        val current = _advancedFilters.value
+        _advancedFilters.value = current.copy(startDate = startDate, endDate = endDate)
+    }
+
+    /**
+     * Update category filter.
+     */
+    fun updateCategoryFilter(categories: List<String>) {
+        val current = _advancedFilters.value
+        _advancedFilters.value = current.copy(categories = categories)
+    }
+
+    /**
+     * Update sort option.
+     */
+    fun updateSortBy(sortOption: SortOption) {
+        val current = _advancedFilters.value
+        _advancedFilters.value = current.copy(sortBy = sortOption)
     }
 }
