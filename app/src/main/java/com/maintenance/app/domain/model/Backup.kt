@@ -12,7 +12,7 @@ data class BackupConfig(
     val createdDate: LocalDateTime = LocalDateTime.now(),
     val lastModifiedDate: LocalDateTime = LocalDateTime.now(),
     val size: Long = 0L,
-    val fileId: String = "",
+    val filePath: String = "",
     val isEncrypted: Boolean = true,
     val isAutomatic: Boolean = false,
     val version: Int = 1
@@ -50,9 +50,12 @@ data class BackupMetadata(
     val name: String,
     val createdDate: LocalDateTime,
     val size: Long,
-    val driveFileId: String,
+    val filePath: String,
     val isEncrypted: Boolean,
     val recordCount: Int = 0,
     val maintenanceCount: Int = 0,
+    val checksum: String = "",
+    val appVersion: String = "1.0",
+    val databaseVersion: Int = 4,
     val version: Int = 1
 )

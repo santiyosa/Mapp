@@ -1,6 +1,7 @@
 package com.maintenance.app.data.repositories
 
 import android.content.Context
+import android.os.StatFs
 import com.maintenance.app.data.database.MaintenanceDatabase
 import com.maintenance.app.domain.model.BackupConfig
 import com.maintenance.app.domain.model.BackupMetadata
@@ -47,25 +48,18 @@ class BackupRepositoryImpl(
                 // Create zip file with database
                 val timestamp = System.currentTimeMillis()
                 val zipData = createZipFromDatabaseFile(dbFile)
+                val backupFileName = "${backupName}_${timestamp}.zip"
+                val backupFile = File(backupDir, backupFileName)
 
-                // Upload to Google Drive
-                val folderId = googleDriveService.getOrCreateBackupFolder()
-                val fileId = googleDriveService.uploadBackup(
-                    fileName = "${backupName}_${timestamp}.zip",
-                    fileContent = zipData,
-                    parentFolderId = folderId
-                )
-
-                if (fileId.isNullOrEmpty()) {
-                    throw Exception("Failed to upload backup to Google Drive")
-                }
+                // Save to local directory
+                backupFile.outputStream().use { it.write(zipData) }
 
                 val backupConfig = BackupConfig(
-                    id = fileId,
+                    id = backupFile.nameWithoutExtension,
                     name = backupName,
                     createdDate = LocalDateTime.now(),
                     size = zipData.size.toLong(),
-                    fileId = fileId,
+                    filePath = backupFile.absolutePath,
                     isEncrypted = encryptionEnabled
                 )
 
@@ -79,11 +73,12 @@ class BackupRepositoryImpl(
     override suspend fun restoreBackup(backupId: String): Result<Unit> {
         return try {
             withContext(Dispatchers.IO) {
-                // Download from Google Drive
-                val backupData = googleDriveService.downloadBackup(backupId)
-                    ?: throw Exception("Failed to download backup")
+                val backupFile = File(backupDir, "$backupId.zip")
+                if (!backupFile.exists()) {
+                    throw Exception("Backup file not found")
+                }
 
-                // Extract and restore database
+                val backupData = backupFile.readBytes()
                 restoreDatabaseFromZip(backupData)
 
                 Result.success(Unit)
@@ -96,16 +91,17 @@ class BackupRepositoryImpl(
     override suspend fun getBackupList(): Result<List<BackupMetadata>> {
         return try {
             withContext(Dispatchers.IO) {
-                val backups = googleDriveService.listBackups().map { (fileId, fileName, createdDate) ->
+                val backups = backupDir.listFiles()?.filter { it.extension == "zip" }?.map { file ->
                     BackupMetadata(
-                        id = fileId,
-                        name = fileName,
+                        id = file.nameWithoutExtension,
+                        name = file.nameWithoutExtension,
                         createdDate = LocalDateTime.now(),
-                        size = 0L,
-                        driveFileId = fileId,
-                        isEncrypted = false
+                        size = file.length(),
+                        filePath = file.absolutePath,
+                        isEncrypted = false,
+                        checksum = ""
                     )
-                }
+                } ?: emptyList()
                 Result.success(backups)
             }
         } catch (e: Exception) {
@@ -116,11 +112,12 @@ class BackupRepositoryImpl(
     override suspend fun deleteBackup(backupId: String): Result<Unit> {
         return try {
             withContext(Dispatchers.IO) {
-                val success = googleDriveService.deleteBackup(backupId)
-                if (success) {
+                val backupFile = File(backupDir, "$backupId.zip")
+                val deleted = backupFile.delete()
+                if (deleted) {
                     Result.success(Unit)
                 } else {
-                    Result.Error(Exception("Delete failed"), "Failed to delete backup")
+                    Result.Error(Exception("Delete failed"), "Failed to delete backup file")
                 }
             }
         } catch (e: Exception) {
@@ -170,18 +167,19 @@ class BackupRepositoryImpl(
 
     override suspend fun isGoogleDriveAuthenticated(): Result<Boolean> {
         return try {
-            val isAuth = googleDriveService.isAuthenticated()
-            Result.success(isAuth)
+            // Local backups don't require authentication
+            Result.success(true)
         } catch (e: Exception) {
-            Result.Error(e, "Failed to check authentication")
+            Result.Error(e, "Failed to check availability")
         }
     }
 
     override suspend fun getAvailableStorage(): Result<Long> {
         return try {
             withContext(Dispatchers.IO) {
-                val storage = googleDriveService.getAvailableStorage()
-                Result.success(storage)
+                val stat = StatFs(backupDir.absolutePath)
+                val availableBytes = stat.availableBytes
+                Result.success(availableBytes)
             }
         } catch (e: Exception) {
             Result.Error(e, "Failed to get available storage")
