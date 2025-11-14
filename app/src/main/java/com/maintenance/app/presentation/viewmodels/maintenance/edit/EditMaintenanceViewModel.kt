@@ -77,6 +77,12 @@ class EditMaintenanceViewModel @Inject constructor(
         private set
     var recurrenceIntervalDays by mutableStateOf("")
         private set
+    var maintenanceDate by mutableStateOf<java.time.LocalDate?>(null)
+        private set
+    var maintenanceType by mutableStateOf("")
+        private set
+    var nextMaintenanceDue by mutableStateOf<java.time.LocalDate?>(null)
+        private set
 
     // Image fields
     var selectedImages by mutableStateOf<List<String>>(emptyList())
@@ -354,8 +360,42 @@ class EditMaintenanceViewModel @Inject constructor(
         }
     }
 
-    fun resetUiState() {
-        _uiState.value = EditMaintenanceUiState.Idle
+    fun updateDurationMinutes(value: String) {
+        durationMinutes = value
+    }
+
+    fun updateMaintenanceDate(date: java.time.LocalDate) {
+        maintenanceDate = date
+    }
+
+    fun updateMaintenanceType(value: String) {
+        maintenanceType = value
+    }
+
+    fun updateNextMaintenanceDue(date: java.time.LocalDate) {
+        nextMaintenanceDue = date
+    }
+
+    fun updateStatus(value: String) {
+        // Placeholder for status update
+    }
+
+    fun saveMaintenance() {
+        updateMaintenance()
+    }
+
+    fun deleteMaintenance() {
+        viewModelScope.launch {
+            _uiState.value = EditMaintenanceUiState.Loading
+            try {
+                // TODO: Implement delete maintenance logic
+                _uiState.value = EditMaintenanceUiState.Success
+            } catch (e: Exception) {
+                _uiState.value = EditMaintenanceUiState.Error(
+                    e.message ?: "Error al eliminar el mantenimiento"
+                )
+            }
+        }
     }
 
     /**

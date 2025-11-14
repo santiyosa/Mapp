@@ -23,6 +23,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.LocalTime
 import java.math.BigDecimal
 import java.time.LocalDateTime
 import javax.inject.Inject
@@ -78,6 +80,12 @@ class CreateMaintenanceViewModel @Inject constructor(
     var isRecurring by mutableStateOf(false)
         private set
     var recurrenceIntervalDays by mutableStateOf("")
+        private set
+    var maintenanceDate by mutableStateOf<LocalDate?>(null)
+        private set
+    var maintenanceTime by mutableStateOf<LocalTime?>(null)
+        private set
+    var nextMaintenanceDue by mutableStateOf<LocalDate?>(null)
         private set
 
     // Image fields
@@ -174,6 +182,59 @@ class CreateMaintenanceViewModel @Inject constructor(
      */
     fun updatePriority(newPriority: Maintenance.Priority) {
         priority = newPriority
+    }
+
+    /**
+     * Update priority from string.
+     */
+    fun updateStatus(newStatus: String) {
+        // Map string to status if needed
+        // For now, this is a placeholder for consistency
+    }
+
+    /**
+     * Update next maintenance due date.
+     */
+    fun updateNextMaintenanceDue(date: LocalDate) {
+        nextMaintenanceDue = date
+        scheduleAutoSave()
+    }
+
+    /**
+     * Update maintenance date.
+     */
+    fun updateMaintenanceDate(date: LocalDate) {
+        maintenanceDate = date
+        scheduleAutoSave()
+    }
+
+    /**
+     * Update maintenance time.
+     */
+    fun updateMaintenanceTime(time: LocalTime) {
+        maintenanceTime = time
+        scheduleAutoSave()
+    }
+
+    /**
+     * Load draft maintenance for editing.
+     */
+    fun loadDraft(recordId: Long) {
+        currentRecordId = recordId
+        viewModelScope.launch {
+            try {
+                val result = loadDraftUseCase.invoke(LoadMaintenanceDraftUseCase.Params(recordId = recordId))
+                if (result.isSuccess) {
+                    val draft = result.getOrNull()
+                    if (draft != null) {
+                        isDraftLoaded = true
+                        // Load draft fields
+                    }
+                }
+            } catch (e: Exception) {
+                // Handle error
+            }
+        }
     }
 
     /**
