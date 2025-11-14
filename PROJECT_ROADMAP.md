@@ -111,7 +111,7 @@
 
 ### ✅ Manejo de Imágenes
 - [ ] Integrar CameraX o Intent de cámara
-- [ ] Comprimir imágenes automáticamente
+- [ ] Comprimir imágenes automáticamenteArra
 - [ ] Almacenar imágenes en storage interno
 - [ ] Mostrar imágenes en UI
 - [ ] Eliminar imágenes al borrar registros

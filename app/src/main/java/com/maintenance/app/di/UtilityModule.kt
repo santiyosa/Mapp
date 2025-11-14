@@ -3,6 +3,7 @@ package com.maintenance.app.di
 import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.maintenance.app.utils.ShareManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -29,5 +30,11 @@ object UtilityModule {
         return GsonBuilder()
             .setDateFormat("yyyy-MM-dd HH:mm:ss")
             .create()
+    }
+
+    @Provides
+    @Singleton
+    fun provideShareManager(@ApplicationContext context: Context): ShareManager {
+        return ShareManager(context)
     }
 }
