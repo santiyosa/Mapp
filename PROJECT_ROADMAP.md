@@ -147,23 +147,33 @@
 
 ---
 
-## 📅 FASE 6: PERSONALIZACIÓN Y CONFIGURACIONES (Semana 6)
+## 📅 FASE 6: PERSONALIZACIÓN Y CONFIGURACIONES (Semana 6) ✅ COMPLETADA
 
 ### ✅ Configuraciones de Usuario
-- [ ] Implementar SettingsRepository
-- [ ] Pantalla de configuraciones completa
-- [ ] Selector de tema (Claro/Oscuro/Sistema)
-- [ ] Selector de tamaño de fuente
-- [ ] Aplicar configuraciones en tiempo real
-- [ ] Persistir preferencias del usuario
+- [x] Implementar SettingsRepository
+- [x] Pantalla de configuraciones completa
+- [x] Selector de tema (Claro/Oscuro/Sistema)
+- [x] Selector de tamaño de fuente
+- [x] Selector de idioma (Español/Inglés/Portugués)
+- [x] Aplicar configuraciones en tiempo real
+- [x] Persistir preferencias del usuario
 
 ### ✅ Autenticación Biométrica
-- [ ] Integrar BiometricManager
-- [ ] Configuración para activar/desactivar
-- [ ] Pantalla de autenticación
-- [ ] Fallback para PIN/Patrón
-- [ ] Manejar errores de biometría
-- [ ] Validar disponibilidad en dispositivo
+- [x] Integrar BiometricManager
+- [x] Configuración para activar/desactivar
+- [x] Pantalla de autenticación
+- [x] Fallback para PIN/Patrón
+- [x] Manejar errores de biometría
+- [x] Validar disponibilidad en dispositivo
+
+### ✅ Componentes de UI Reutilizables
+- [x] ThemeSelector - Selector de tema con radio buttons
+- [x] LanguageSelector - Selector de idioma con dropdown
+- [x] BiometricSettingCard - Tarjeta para autenticación biométrica
+- [x] FontSizeSelector - Selector de tamaño de fuente con slider
+- [x] NotificationPreference - Toggle para preferencias de notificaciones
+- [x] PersonalizationDivider - Divisor de secciones con título
+- [x] SettingsScreenEnhanced - Pantalla mejorada con todos los componentes
 
 ---
 
