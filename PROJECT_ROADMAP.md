@@ -68,32 +68,32 @@
 ## 📅 FASE 3: UI BÁSICA Y NAVEGACIÓN (Semana 3)
 
 ### ✅ Sistema de Temas
-- [ ] Configurar Material Design 3
-- [ ] Implementar tema dinámico (Android 12+)
-- [ ] Crear ThemeProvider
-- [ ] Implementar modo claro/oscuro/sistema
-- [ ] Configurar tipografía escalable
+- [x] Configurar Material Design 3
+- [x] Implementar tema dinámico (Android 12+)
+- [x] Crear ThemeProvider
+- [x] Implementar modo claro/oscuro/sistema
+- [x] Configurar tipografía escalable
 
 ### ✅ Navegación
-- [ ] Configurar Navigation Compose
-- [ ] Definir rutas de navegación
-- [ ] Implementar NavHost
-- [ ] Crear pantallas base (Scaffold)
+- [x] Configurar Navigation Compose
+- [x] Definir rutas de navegación
+- [x] Implementar NavHost
+- [x] Crear pantallas base (Scaffold)
 
 ### ✅ Pantallas Principales
-- [ ] **HomeScreen**: Lista de registros
-- [ ] **RecordDetailScreen**: Detalles y lista de mantenimientos
-- [ ] **CreateRecordScreen**: Formulario de nuevo registro
-- [ ] **EditRecordScreen**: Formulario de edición
-- [ ] **CreateMaintenanceScreen**: Formulario de mantenimiento
-- [ ] **SettingsScreen**: Configuraciones
+- [x] **HomeScreen**: Lista de registros
+- [x] **RecordDetailScreen**: Detalles y lista de mantenimientos
+- [x] **CreateRecordScreen**: Formulario de nuevo registro
+- [x] **EditRecordScreen**: Formulario de edición
+- [x] **CreateMaintenanceScreen**: Formulario de mantenimiento
+- [x] **SettingsScreen**: Configuraciones
 
 ### ✅ ViewModels Básicos
-- [ ] HomeViewModel
-- [ ] RecordDetailViewModel
-- [ ] CreateRecordViewModel
-- [ ] MaintenanceViewModel
-- [ ] SettingsViewModel
+- [x] HomeViewModel
+- [x] RecordDetailViewModel
+- [x] CreateRecordViewModel
+- [x] MaintenanceViewModel
+- [x] SettingsViewModel
 
 ---
 

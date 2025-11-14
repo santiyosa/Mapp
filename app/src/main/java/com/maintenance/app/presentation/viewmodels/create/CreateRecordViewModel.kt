@@ -36,6 +36,14 @@ class CreateRecordViewModel @Inject constructor(
         private set
     var description by mutableStateOf("")
         private set
+    var location by mutableStateOf("")
+        private set
+    var brandModel by mutableStateOf("")
+        private set
+    var serialNumber by mutableStateOf("")
+        private set
+    var notes by mutableStateOf("")
+        private set
 
     // Validation errors
     var titleError by mutableStateOf<String?>(null)
@@ -64,6 +72,34 @@ class CreateRecordViewModel @Inject constructor(
      */
     fun updateDescription(newDescription: String) {
         description = newDescription
+    }
+
+    /**
+     * Update location field.
+     */
+    fun updateLocation(newLocation: String) {
+        location = newLocation
+    }
+
+    /**
+     * Update brand/model field.
+     */
+    fun updateBrandModel(newBrandModel: String) {
+        brandModel = newBrandModel
+    }
+
+    /**
+     * Update serial number field.
+     */
+    fun updateSerialNumber(newSerialNumber: String) {
+        serialNumber = newSerialNumber
+    }
+
+    /**
+     * Update notes field.
+     */
+    fun updateNotes(newNotes: String) {
+        notes = newNotes
     }
 
     /**
