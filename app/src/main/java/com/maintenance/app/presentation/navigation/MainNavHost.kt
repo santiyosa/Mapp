@@ -14,6 +14,7 @@ import com.maintenance.app.presentation.ui.screens.create.CreateRecordScreen
 import com.maintenance.app.presentation.ui.screens.edit.EditRecordScreen
 import com.maintenance.app.presentation.ui.screens.maintenance.create.CreateMaintenanceScreen
 import com.maintenance.app.presentation.ui.screens.maintenance.edit.EditMaintenanceScreen
+import com.maintenance.app.presentation.ui.screens.backup.BackupScreen
 
 /**
  * Main navigation host for the app.
@@ -48,6 +49,7 @@ fun MainNavHost(
         
         composable(Screen.Settings.route) {
             SettingsScreen(
+                navController = navController,
                 onNavigateBack = {
                     navController.popBackStack()
                 }
@@ -121,5 +123,9 @@ fun MainNavHost(
             )
         }
 
+        // Backup screen
+        composable(Screen.Backup.route) {
+            BackupScreen()
+        }
     }
 }

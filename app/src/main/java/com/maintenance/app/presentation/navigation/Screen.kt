@@ -34,6 +34,9 @@ sealed class Screen(val route: String) {
         fun createRoute(maintenanceId: Long) = "maintenance_detail/$maintenanceId"
     }
     
+    // Backup screens
+    object Backup : Screen("backup")
+    
     // Authentication screens (for future use)
     object BiometricAuth : Screen("biometric_auth")
     

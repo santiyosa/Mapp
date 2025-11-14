@@ -32,8 +32,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import com.maintenance.app.domain.model.AppLanguage
 import com.maintenance.app.domain.model.ThemeMode
+import com.maintenance.app.presentation.navigation.Screen
 import com.maintenance.app.presentation.settings.SettingsViewModel
 
 /**
@@ -43,6 +45,7 @@ import com.maintenance.app.presentation.settings.SettingsViewModel
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
+    navController: NavHostController? = null,
     onNavigateBack: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -265,6 +268,17 @@ fun SettingsScreen(
                         // TODO: Implement auto backup toggle
                     }
                 )
+            }
+
+            Button(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                onClick = {
+                    navController?.navigate(Screen.Backup.route)
+                }
+            ) {
+                Text("Manage Backups")
             }
 
             // Reset and Clear Buttons
