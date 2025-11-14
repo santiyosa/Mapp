@@ -9,6 +9,8 @@ import com.maintenance.app.domain.model.BackupSchedule
 import com.maintenance.app.domain.model.BackupFrequency
 import com.maintenance.app.domain.repositories.BackupRepository
 import com.maintenance.app.utils.GoogleDriveService
+import com.maintenance.app.utils.LocalBackupService
+import com.maintenance.app.utils.EncryptionUtil
 import com.maintenance.app.utils.Result
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -23,7 +25,8 @@ import java.util.zip.ZipOutputStream
 class BackupRepositoryImpl(
     private val context: Context,
     private val database: MaintenanceDatabase,
-    private val googleDriveService: GoogleDriveService
+    private val googleDriveService: GoogleDriveService,
+    private val localBackupService: LocalBackupService
 ) : BackupRepository {
 
     companion object {
@@ -47,19 +50,26 @@ class BackupRepositoryImpl(
 
                 // Create zip file with database
                 val timestamp = System.currentTimeMillis()
-                val zipData = createZipFromDatabaseFile(dbFile)
-                val backupFileName = "${backupName}_${timestamp}.zip"
-                val backupFile = File(backupDir, backupFileName)
+                var zipData = createZipFromDatabaseFile(dbFile)
 
-                // Save to local directory
-                backupFile.outputStream().use { it.write(zipData) }
+                // Generate checksum before encryption
+                val checksum = localBackupService.generateChecksum(zipData)
+
+                // Encrypt if requested
+                if (encryptionEnabled) {
+                    zipData = EncryptionUtil.encrypt(zipData)
+                }
+
+                // Save backup file
+                val backupFileName = "${backupName}_${timestamp}.backup"
+                val filePath = localBackupService.saveBackupFile(backupFileName, zipData)
 
                 val backupConfig = BackupConfig(
-                    id = backupFile.nameWithoutExtension,
+                    id = backupFileName.replace(".backup", ""),
                     name = backupName,
                     createdDate = LocalDateTime.now(),
                     size = zipData.size.toLong(),
-                    filePath = backupFile.absolutePath,
+                    filePath = filePath,
                     isEncrypted = encryptionEnabled
                 )
 
@@ -73,12 +83,24 @@ class BackupRepositoryImpl(
     override suspend fun restoreBackup(backupId: String): Result<Unit> {
         return try {
             withContext(Dispatchers.IO) {
-                val backupFile = File(backupDir, "$backupId.zip")
+                // Try to find backup file with either .backup or .zip extension
+                val backupFile = File(backupDir, "$backupId.backup").let { file ->
+                    if (file.exists()) file else File(backupDir, "$backupId.zip")
+                }
+                
                 if (!backupFile.exists()) {
                     throw Exception("Backup file not found")
                 }
 
-                val backupData = backupFile.readBytes()
+                var backupData = localBackupService.loadBackupFile(backupFile.absolutePath)
+                    ?: throw Exception("Failed to load backup file")
+
+                // Decrypt if file is encrypted
+                if (backupFile.extension == "backup") {
+                    backupData = EncryptionUtil.decrypt(backupData)
+                }
+
+                // Extract and restore database
                 restoreDatabaseFromZip(backupData)
 
                 Result.success(Unit)
@@ -91,17 +113,20 @@ class BackupRepositoryImpl(
     override suspend fun getBackupList(): Result<List<BackupMetadata>> {
         return try {
             withContext(Dispatchers.IO) {
-                val backups = backupDir.listFiles()?.filter { it.extension == "zip" }?.map { file ->
+                val backups = localBackupService.listBackupFiles().map { file ->
+                    // Determine if encrypted by file extension
+                    val isEncrypted = file.extension == "backup"
+                    
                     BackupMetadata(
                         id = file.nameWithoutExtension,
                         name = file.nameWithoutExtension,
                         createdDate = LocalDateTime.now(),
                         size = file.length(),
                         filePath = file.absolutePath,
-                        isEncrypted = false,
+                        isEncrypted = isEncrypted,
                         checksum = ""
                     )
-                } ?: emptyList()
+                }
                 Result.success(backups)
             }
         } catch (e: Exception) {
@@ -112,8 +137,11 @@ class BackupRepositoryImpl(
     override suspend fun deleteBackup(backupId: String): Result<Unit> {
         return try {
             withContext(Dispatchers.IO) {
-                val backupFile = File(backupDir, "$backupId.zip")
-                val deleted = backupFile.delete()
+                val backupFile = File(backupDir, "$backupId.backup").let { file ->
+                    if (file.exists()) file else File(backupDir, "$backupId.zip")
+                }
+                
+                val deleted = localBackupService.deleteBackupFile(backupFile.absolutePath)
                 if (deleted) {
                     Result.success(Unit)
                 } else {
