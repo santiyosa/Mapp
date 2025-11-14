@@ -4,6 +4,7 @@ import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.maintenance.app.utils.ShareManager
+import com.maintenance.app.utils.PermissionManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -36,5 +37,11 @@ object UtilityModule {
     @Singleton
     fun provideShareManager(@ApplicationContext context: Context): ShareManager {
         return ShareManager(context)
+    }
+
+    @Provides
+    @Singleton
+    fun providePermissionManager(@ApplicationContext context: Context): PermissionManager {
+        return PermissionManager(context)
     }
 }

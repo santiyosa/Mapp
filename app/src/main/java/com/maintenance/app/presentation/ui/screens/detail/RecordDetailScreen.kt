@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.*
@@ -43,9 +44,19 @@ fun RecordDetailScreen(
     viewModel: RecordDetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val isWhatsAppAvailable by viewModel.isWhatsAppAvailable.collectAsState()
+    val shareLoading by viewModel.shareLoading.collectAsState()
+    val shareError by viewModel.shareError.collectAsState()
     
     LaunchedEffect(recordId) {
         viewModel.loadRecord(recordId)
+    }
+
+    // Show error message as snackbar
+    shareError?.let { error ->
+        LaunchedEffect(error) {
+            // Can show snackbar here if needed
+        }
     }
     
     MainScaffold(
@@ -55,6 +66,39 @@ fun RecordDetailScreen(
         showBackButton = true,
         onBackClick = { navController.navigateUp() },
         actions = {
+            // Share buttons
+            if (uiState is RecordDetailUiState.Success) {
+                if (isWhatsAppAvailable) {
+                    IconButton(
+                        onClick = { viewModel.shareRecordViaWhatsApp() },
+                        enabled = !shareLoading
+                    ) {
+                        if (shareLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                strokeWidth = 2.dp
+                            )
+                        } else {
+                            Icon(
+                                imageVector = Icons.Default.Share,
+                                contentDescription = "Compartir en WhatsApp"
+                            )
+                        }
+                    }
+                }
+                
+                IconButton(
+                    onClick = { viewModel.shareRecordGeneric() },
+                    enabled = !shareLoading
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Share,
+                        contentDescription = "Compartir"
+                    )
+                }
+            }
+            
+            // Edit button
             IconButton(
                 onClick = {
                     navController.navigate(

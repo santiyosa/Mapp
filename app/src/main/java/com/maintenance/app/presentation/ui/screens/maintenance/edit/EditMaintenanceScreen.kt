@@ -8,6 +8,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -37,6 +38,9 @@ fun EditMaintenanceScreen(
     val context = LocalContext.current
     val imageManager = remember { ImageManager(context) }
     val uiState by viewModel.uiState.collectAsState()
+    val isWhatsAppAvailable by viewModel.isWhatsAppAvailable.collectAsState()
+    val shareLoading by viewModel.shareLoading.collectAsState()
+    val shareError by viewModel.shareError.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(uiState) {
@@ -55,6 +59,13 @@ fun EditMaintenanceScreen(
         }
     }
 
+    // Get the maintenance record name if available
+    var recordName by remember { mutableStateOf("") }
+    LaunchedEffect(Unit) {
+        // recordName will be set from the maintenance data loaded in ViewModel
+        recordName = "Maintenance"
+    }
+
     MainScaffold(
         title = "Editar Mantenimiento",
         navController = navController,
@@ -62,6 +73,37 @@ fun EditMaintenanceScreen(
         showBackButton = true,
         onBackClick = { navController.navigateUp() },
         actions = {
+            // Share buttons
+            if (isWhatsAppAvailable) {
+                IconButton(
+                    onClick = { viewModel.shareMaintenanceViaWhatsApp(recordName) },
+                    enabled = !shareLoading
+                ) {
+                    if (shareLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            strokeWidth = 2.dp
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Default.Share,
+                            contentDescription = "Compartir en WhatsApp"
+                        )
+                    }
+                }
+            }
+            
+            IconButton(
+                onClick = { viewModel.shareMaintenanceGeneric(recordName) },
+                enabled = !shareLoading
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Share,
+                    contentDescription = "Compartir"
+                )
+            }
+            
+            // Save button
             IconButton(
                 onClick = { viewModel.updateMaintenance() },
                 enabled = uiState !is EditMaintenanceUiState.Loading

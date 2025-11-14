@@ -13,6 +13,10 @@ import com.maintenance.app.domain.usecases.maintenances.UpdateMaintenanceUseCase
 import com.maintenance.app.domain.usecases.images.ImageCaptureUseCase
 import com.maintenance.app.domain.usecases.images.DeleteImageUseCase
 import com.maintenance.app.domain.usecases.images.CreateTempImageUseCase
+import com.maintenance.app.domain.usecases.records.GetRecordByIdUseCase
+import com.maintenance.app.domain.usecases.sharing.ShareMaintenanceViaWhatsAppUseCase
+import com.maintenance.app.domain.usecases.sharing.ShareMaintenanceGenericUseCase
+import com.maintenance.app.domain.usecases.sharing.CheckWhatsAppInstalledUseCase
 
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,6 +40,10 @@ class EditMaintenanceViewModel @Inject constructor(
     private val imageCaptureUseCase: ImageCaptureUseCase,
     private val deleteImageUseCase: DeleteImageUseCase,
     private val createTempImageUseCase: CreateTempImageUseCase,
+    private val getRecordByIdUseCase: GetRecordByIdUseCase,
+    private val shareMaintenanceViaWhatsAppUseCase: ShareMaintenanceViaWhatsAppUseCase,
+    private val shareMaintenanceGenericUseCase: ShareMaintenanceGenericUseCase,
+    private val checkWhatsAppInstalledUseCase: CheckWhatsAppInstalledUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -88,8 +96,19 @@ class EditMaintenanceViewModel @Inject constructor(
 
     private var originalMaintenance: Maintenance? = null
 
+    // Sharing states
+    private val _isWhatsAppAvailable = MutableStateFlow(false)
+    val isWhatsAppAvailable: StateFlow<Boolean> = _isWhatsAppAvailable.asStateFlow()
+
+    private val _shareLoading = MutableStateFlow(false)
+    val shareLoading: StateFlow<Boolean> = _shareLoading.asStateFlow()
+
+    private val _shareError = MutableStateFlow<String?>(null)
+    val shareError: StateFlow<String?> = _shareError.asStateFlow()
+
     init {
         loadMaintenance()
+        checkWhatsAppAvailability()
     }
 
     private fun loadMaintenance() {
@@ -130,6 +149,19 @@ class EditMaintenanceViewModel @Inject constructor(
         selectedImages = maintenance.imagesPaths
     }
 
+    /**
+     * Check if WhatsApp is installed on the device.
+     */
+    private fun checkWhatsAppAvailability() {
+        viewModelScope.launch {
+            try {
+                val result = checkWhatsAppInstalledUseCase(Unit)
+                _isWhatsAppAvailable.value = result.getOrDefault(false)
+            } catch (e: Exception) {
+                _isWhatsAppAvailable.value = false
+            }
+        }
+    }
     // Update functions
     fun updateDescription(value: String) {
         description = value
@@ -324,5 +356,64 @@ class EditMaintenanceViewModel @Inject constructor(
 
     fun resetUiState() {
         _uiState.value = EditMaintenanceUiState.Idle
+    }
+
+    /**
+     * Share the current maintenance via WhatsApp.
+     */
+    fun shareMaintenanceViaWhatsApp(recordName: String) {
+        val maintenance = originalMaintenance ?: return
+
+        viewModelScope.launch {
+            _shareLoading.value = true
+            _shareError.value = null
+
+            try {
+                val result = shareMaintenanceViaWhatsAppUseCase(
+                    ShareMaintenanceViaWhatsAppUseCase.Params(maintenance, recordName)
+                )
+                val success = result.getOrDefault(false)
+                if (!success) {
+                    _shareError.value = "Failed to share maintenance via WhatsApp"
+                }
+            } catch (e: Exception) {
+                _shareError.value = e.message ?: "Error sharing maintenance"
+            } finally {
+                _shareLoading.value = false
+            }
+        }
+    }
+
+    /**
+     * Share the current maintenance via generic share intent.
+     */
+    fun shareMaintenanceGeneric(recordName: String) {
+        val maintenance = originalMaintenance ?: return
+
+        viewModelScope.launch {
+            _shareLoading.value = true
+            _shareError.value = null
+
+            try {
+                val result = shareMaintenanceGenericUseCase(
+                    ShareMaintenanceGenericUseCase.Params(maintenance, recordName)
+                )
+                val success = result.getOrDefault(false)
+                if (!success) {
+                    _shareError.value = "Failed to share maintenance"
+                }
+            } catch (e: Exception) {
+                _shareError.value = e.message ?: "Error sharing maintenance"
+            } finally {
+                _shareLoading.value = false
+            }
+        }
+    }
+
+    /**
+     * Clear the share error message.
+     */
+    fun clearShareError() {
+        _shareError.value = null
     }
 }
