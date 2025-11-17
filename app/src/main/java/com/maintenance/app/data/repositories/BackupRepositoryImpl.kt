@@ -18,11 +18,12 @@ import java.io.File
 import java.time.LocalDateTime
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
+import javax.inject.Inject
 
 /**
  * Implementation of BackupRepository.
  */
-class BackupRepositoryImpl(
+class BackupRepositoryImpl @Inject constructor(
     private val context: Context,
     private val database: MaintenanceDatabase,
     private val googleDriveService: GoogleDriveService,
