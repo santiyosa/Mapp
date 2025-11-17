@@ -59,14 +59,20 @@ abstract class MaintenanceDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: MaintenanceDatabase? = null
 
-        fun getDatabase(context: Context): MaintenanceDatabase {
+        fun getDatabase(context: Context, converters: Converters? = null): MaintenanceDatabase {
             return INSTANCE ?: synchronized(this) {
-                val instance = Room.databaseBuilder(
+                val builder = Room.databaseBuilder(
                     context.applicationContext,
                     MaintenanceDatabase::class.java,
                     DATABASE_NAME
                 )
-                    .addTypeConverter(Converters())
+                
+                // Add type converter if provided (from Hilt)
+                if (converters != null) {
+                    builder.addTypeConverter(converters)
+                }
+                
+                val instance = builder
                     .addCallback(DatabaseCallback())
                     .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
                     .build()

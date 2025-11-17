@@ -2,6 +2,7 @@ package com.maintenance.app.di
 
 import android.content.Context
 import androidx.room.Room
+import com.maintenance.app.data.database.Converters
 import com.maintenance.app.data.database.MaintenanceDatabase
 import com.maintenance.app.data.database.dao.AppSettingsDAO
 import com.maintenance.app.data.database.dao.MaintenanceDAO
@@ -27,10 +28,17 @@ object DatabaseModule {
 
     @Provides
     @Singleton
+    fun provideConverters(): Converters {
+        return Converters()
+    }
+
+    @Provides
+    @Singleton
     fun provideMaintenanceDatabase(
-        @ApplicationContext context: Context
+        @ApplicationContext context: Context,
+        converters: Converters
     ): MaintenanceDatabase {
-        return MaintenanceDatabase.getDatabase(context)
+        return MaintenanceDatabase.getDatabase(context, converters)
     }
 
     @Provides

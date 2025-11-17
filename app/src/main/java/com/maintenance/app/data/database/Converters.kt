@@ -1,5 +1,6 @@
 package com.maintenance.app.data.database
 
+import androidx.room.ProvidedTypeConverter
 import androidx.room.TypeConverter
 import java.math.BigDecimal
 import java.time.LocalDateTime
@@ -9,6 +10,7 @@ import java.time.ZoneOffset
  * Type converters for Room database to handle complex types.
  * Using timestamp approach for API 24+ compatibility.
  */
+@ProvidedTypeConverter
 class Converters {
 
     @TypeConverter
