@@ -21,6 +21,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.maintenance.app.presentation.ui.components.LoadingIndicator
 import com.maintenance.app.presentation.ui.components.MaintenanceTextField
+import com.maintenance.app.presentation.ui.components.MainScaffold
 import com.maintenance.app.presentation.viewmodels.search.SearchViewModel
 import com.maintenance.app.presentation.viewmodels.search.SortOption
 import com.maintenance.app.presentation.viewmodels.search.AdvancedSearchFilters
@@ -44,85 +45,94 @@ fun SearchScreenAdvanced(
     
     var showFilters by remember { mutableStateOf(false) }
 
-    Column(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        // Search bar
-        SearchBar(
-            query = searchQuery,
-            onQueryChange = { viewModel.updateSearchQuery(it) },
-            onSearch = { viewModel.executeSearch(it) },
+    MainScaffold(
+        title = "Buscar",
+        navController = navController,
+        showBottomBar = true,
+        showBackButton = false
+    ) { paddingValues ->
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-        )
-
-        // Filter button
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .fillMaxSize()
+                .padding(paddingValues)
         ) {
-            FilterButton(
-                onClick = { showFilters = !showFilters },
-                isActive = !advancedFilters.isEmpty(),
-                modifier = Modifier.weight(1f)
-            )
-            
-            if (!advancedFilters.isEmpty()) {
-                OutlinedButton(
-                    onClick = { viewModel.clearFilters() },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text("Clear Filters")
-                }
-            }
-        }
-
-        // Advanced filters panel
-        if (showFilters) {
-            AdvancedFiltersPanel(
-                filters = advancedFilters,
-                onFiltersChanged = { viewModel.applyFilters(it) },
-                onSortChanged = { viewModel.updateSortBy(it) },
+            // Search bar
+            SearchBar(
+                query = searchQuery,
+                onQueryChange = { viewModel.updateSearchQuery(it) },
+                onSearch = { viewModel.executeSearch(it) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp)
-                    .weight(1f)
             )
-        } else {
-            // Search results
-            when {
-                isLoading -> {
-                    LoadingIndicator(
+
+            // Filter button
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                FilterButton(
+                    onClick = { showFilters = !showFilters },
+                    isActive = !advancedFilters.isEmpty(),
+                    modifier = Modifier.weight(1f)
+                )
+                
+                if (!advancedFilters.isEmpty()) {
+                    OutlinedButton(
+                        onClick = { viewModel.clearFilters() },
                         modifier = Modifier.weight(1f)
-                    )
-                }
-                searchResults.isEmpty() -> {
-                    Text(
-                        text = "No results found",
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(16.dp),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
-                else -> {
-                    LazyColumn(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth(),
-                        contentPadding = PaddingValues(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        items(searchResults.size) { index ->
-                            val result = searchResults[index]
-                            SearchResultCard(
-                                result = result,
-                                onClick = { }
-                            )
+                        Text("Limpiar filtros")
+                    }
+                }
+            }
+
+            // Advanced filters panel
+            if (showFilters) {
+                AdvancedFiltersPanel(
+                    filters = advancedFilters,
+                    onFiltersChanged = { viewModel.applyFilters(it) },
+                    onSortChanged = { viewModel.updateSortBy(it) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                        .weight(1f)
+                )
+            } else {
+                // Search results
+                when {
+                    isLoading -> {
+                        LoadingIndicator(
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                    searchResults.isEmpty() -> {
+                        Text(
+                            text = "No se encontraron resultados",
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(16.dp),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                    else -> {
+                        LazyColumn(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxWidth(),
+                            contentPadding = PaddingValues(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            items(searchResults.size) { index ->
+                                val result = searchResults[index]
+                                SearchResultCard(
+                                    result = result,
+                                    onClick = { }
+                                )
+                            }
                         }
                     }
                 }
@@ -142,9 +152,9 @@ private fun SearchBar(
         value = query,
         onValueChange = onQueryChange,
         modifier = modifier.height(50.dp),
-        placeholder = { Text("Search records...") },
+        placeholder = { Text("Buscar registros...") },
         leadingIcon = {
-            Icon(Icons.Default.Search, contentDescription = "Search")
+            Icon(Icons.Default.Search, contentDescription = "Buscar")
         },
         trailingIcon = {
             if (query.isNotEmpty()) {
