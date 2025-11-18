@@ -46,7 +46,7 @@ import com.maintenance.app.presentation.viewmodels.maintenance.create.CreateMain
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateMaintenanceScreenSimple(
+fun CreateMaintenanceScreen(
     navController: NavController,
     recordId: Long,
     viewModel: CreateMaintenanceViewModel = hiltViewModel()

@@ -12,7 +12,7 @@ import com.maintenance.app.presentation.screens.SettingsScreen
 import com.maintenance.app.presentation.ui.screens.detail.RecordDetailScreen
 import com.maintenance.app.presentation.ui.screens.create.CreateRecordScreen
 import com.maintenance.app.presentation.ui.screens.edit.EditRecordScreenSimple
-import com.maintenance.app.presentation.ui.screens.maintenance.create.CreateMaintenanceScreenSimple
+import com.maintenance.app.presentation.ui.screens.maintenance.create.CreateMaintenanceScreen
 import com.maintenance.app.presentation.ui.screens.maintenance.edit.EditMaintenanceScreen
 import com.maintenance.app.presentation.ui.screens.backup.BackupScreen
 
@@ -91,7 +91,7 @@ fun MainNavHost(
             )
         ) { backStackEntry ->
             val recordId = backStackEntry.arguments?.getLong(Screen.RECORD_ID_ARG) ?: 0L
-            CreateMaintenanceScreenSimple(
+            CreateMaintenanceScreen(
                 recordId = recordId,
                 navController = navController
             )
