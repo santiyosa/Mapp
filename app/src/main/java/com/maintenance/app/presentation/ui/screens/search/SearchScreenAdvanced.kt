@@ -19,6 +19,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.maintenance.app.presentation.navigation.Screen
 import com.maintenance.app.presentation.ui.components.LoadingIndicator
 import com.maintenance.app.presentation.ui.components.MaintenanceTextField
 import com.maintenance.app.presentation.ui.components.MainScaffold
@@ -130,7 +131,22 @@ fun SearchScreenAdvanced(
                                 val result = searchResults[index]
                                 SearchResultCard(
                                     result = result,
-                                    onClick = { }
+                                    onClick = {
+                                        when (result.type) {
+                                            com.maintenance.app.domain.model.SearchResultType.RECORD -> {
+                                                navController.navigate(
+                                                    Screen.RecordDetail.createRoute(result.id)
+                                                )
+                                            }
+                                            com.maintenance.app.domain.model.SearchResultType.MAINTENANCE -> {
+                                                // For maintenance, we could navigate to edit or show details
+                                                // For now, let's navigate to the maintenance edit screen
+                                                navController.navigate(
+                                                    Screen.EditMaintenance.createRoute(result.id)
+                                                )
+                                            }
+                                        }
+                                    }
                                 )
                             }
                         }
