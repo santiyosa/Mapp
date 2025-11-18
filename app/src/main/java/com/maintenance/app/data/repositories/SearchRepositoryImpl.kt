@@ -37,7 +37,8 @@ class SearchRepositoryImpl @Inject constructor(
                 title = entity.title,
                 subtitle = entity.subtitle,
                 description = entity.description,
-                relevanceScore = calculateRelevanceScore(query, entity.title, entity.description)
+                relevanceScore = calculateRelevanceScore(query, entity.title, entity.description),
+                recordId = entity.recordId
             )
         }.sortedByDescending { it.relevanceScore }
     }
@@ -52,7 +53,38 @@ class SearchRepositoryImpl @Inject constructor(
                     title = entity.name,
                     subtitle = entity.brandModel ?: "",
                     description = entity.location ?: "",
-                    relevanceScore = calculateRelevanceScore(query, entity.name, entity.location ?: "")
+                    relevanceScore = calculateRelevanceScore(query, entity.name, entity.location ?: ""),
+                    recordId = null  // RECORD type has no associated record ID
+                )
+            }
+        }
+    }
+
+    override suspend fun searchMaintenancesByRecordId(recordId: Long, query: String, limit: Int): List<SearchResult> {
+        return searchDao.searchMaintenancesByRecordId(recordId, query, limit).map { entity ->
+            SearchResult(
+                type = SearchResultType.MAINTENANCE,
+                id = entity.id,
+                title = entity.title,
+                subtitle = entity.subtitle,
+                description = entity.description,
+                relevanceScore = calculateRelevanceScore(query, entity.title, entity.description),
+                recordId = entity.recordId
+            )
+        }.sortedByDescending { it.relevanceScore }
+    }
+
+    override fun searchMaintenancesByRecordIdFlow(recordId: Long, query: String, limit: Int): Flow<List<SearchResult>> {
+        return searchDao.searchMaintenancesByRecordIdFlow(recordId, query, limit).map { entities ->
+            entities.map { entity ->
+                SearchResult(
+                    type = SearchResultType.MAINTENANCE,
+                    id = entity.id,
+                    title = entity.title,
+                    subtitle = entity.subtitle,
+                    description = entity.description,
+                    relevanceScore = calculateRelevanceScore(query, entity.title, entity.description),
+                    recordId = entity.recordId
                 )
             }
         }

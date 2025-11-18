@@ -1,5 +1,6 @@
 package com.maintenance.app.presentation.navigation
 
+import android.util.Log
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
@@ -13,11 +14,14 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.maintenance.app.R
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 /**
  * Data class representing a bottom navigation item.
@@ -53,47 +57,115 @@ val bottomNavItems = listOf(
     )
 )
 
-/**
- * Bottom navigation bar composable.
- */
 @Composable
 fun MainBottomNavigation(
-    navController: NavController
+    navController: NavController,
+    recordId: Long? = null
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route
+    val currentDestination = navBackStackEntry?.destination
+    val currentRoute = currentDestination?.route ?: ""
+    val coroutineScope = rememberCoroutineScope()
+    
+    // Use passed recordId if available, otherwise try to extract from arguments
+    val contextRecordId = recordId ?: navBackStackEntry?.arguments?.getLong(Screen.RECORD_ID_ARG, -1L)
+        ?.takeIf { it > 0 }
+
+    Log.d("BottomNav", "🔴 RENDER: currentRoute=$currentRoute, contextRecordId=$contextRecordId, recordId=$recordId")
 
     NavigationBar {
-        bottomNavItems.forEach { item ->
-            val isSelected = currentRoute == item.screen.route
-            
-            NavigationBarItem(
-                icon = {
-                    Icon(
-                        imageVector = if (isSelected) item.selectedIcon else item.unselectedIcon,
-                        contentDescription = stringResource(item.titleResId)
-                    )
-                },
-                label = {
-                    Text(stringResource(item.titleResId))
-                },
-                selected = isSelected,
-                onClick = {
-                    navController.navigate(item.screen.route) {
-                        // Pop up to the start destination of the graph to
-                        // avoid building up a large stack of destinations
-                        // on the back stack as users select items
-                        popUpTo(navController.graph.startDestinationId) {
-                            saveState = true
+        // Home button
+        val homeItem = bottomNavItems[0]
+        val homeSelected = currentRoute.startsWith("home")
+        NavigationBarItem(
+            icon = {
+                Icon(
+                    imageVector = if (homeSelected) homeItem.selectedIcon else homeItem.unselectedIcon,
+                    contentDescription = stringResource(homeItem.titleResId)
+                )
+            },
+            label = { Text(stringResource(homeItem.titleResId)) },
+            selected = homeSelected,
+            alwaysShowLabel = false,
+            onClick = {
+                Log.d("BottomNav", "🔴 Home clicked")
+                navController.navigate(Screen.Home.route) {
+                    popUpTo(Screen.Home.route) { inclusive = true }
+                    launchSingleTop = true
+                }
+            }
+        )
+        
+        // Search button - EXPLICIT
+        val searchItem = bottomNavItems[1]
+        val searchSelected = currentRoute.startsWith("search")
+        Log.d("BottomNav", "🔴 Search item - selected=$searchSelected, contextRecordId=$contextRecordId")
+        NavigationBarItem(
+            icon = {
+                Icon(
+                    imageVector = if (searchSelected) searchItem.selectedIcon else searchItem.unselectedIcon,
+                    contentDescription = stringResource(searchItem.titleResId)
+                )
+            },
+            label = { Text(stringResource(searchItem.titleResId)) },
+            selected = searchSelected,
+            alwaysShowLabel = false,
+            onClick = {
+                Log.d("BottomNav", "🔴🔴🔴 Search CLICKED! contextRecordId=$contextRecordId")
+                coroutineScope.launch {
+                    try {
+                        val route = if (contextRecordId != null && contextRecordId > 0) {
+                            "search?recordId=$contextRecordId"
+                        } else {
+                            "search"
                         }
-                        // Avoid multiple copies of the same destination when
-                        // reselecting the same item
-                        launchSingleTop = true
-                        // Restore state when reselecting a previously selected item
-                        restoreState = true
+                        Log.d("BottomNav", "🔴🔴🔴 Attempting navigation to: $route")
+                        
+                        // Primero, navega siempre a Home para limpiar el stack
+                        navController.navigate(Screen.Home.route) {
+                            popUpTo(Screen.Home.route) { inclusive = true }
+                        }
+                        
+                        // Luego, después de un pequeño delay, navega a Search
+                        delay(100)
+                        navController.navigate(route) {
+                            popUpTo(Screen.Home.route) { 
+                                inclusive = false
+                                saveState = true
+                            }
+                            launchSingleTop = false
+                            restoreState = true
+                        }
+                        Log.d("BottomNav", "🔴🔴🔴 Navigation SUCCESS to: $route")
+                    } catch (e: Exception) {
+                        Log.e("BottomNav", "🔴🔴🔴 Navigation FAILED", e)
+                        e.printStackTrace()
                     }
                 }
-            )
-        }
+            }
+        )
+        
+        // Settings button
+        val settingsItem = bottomNavItems[2]
+        val settingsSelected = currentRoute.startsWith("settings")
+        NavigationBarItem(
+            icon = {
+                Icon(
+                    imageVector = if (settingsSelected) settingsItem.selectedIcon else settingsItem.unselectedIcon,
+                    contentDescription = stringResource(settingsItem.titleResId)
+                )
+            },
+            label = { Text(stringResource(settingsItem.titleResId)) },
+            selected = settingsSelected,
+            alwaysShowLabel = false,
+            onClick = {
+                Log.d("BottomNav", "🔴 Settings clicked")
+                navController.navigate(Screen.Settings.route) {
+                    popUpTo(Screen.Home.route) { saveState = true }
+                    launchSingleTop = true
+                    restoreState = true
+                }
+            }
+        )
     }
 }

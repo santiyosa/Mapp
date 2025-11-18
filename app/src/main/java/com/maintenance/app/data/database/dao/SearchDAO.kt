@@ -182,11 +182,60 @@ interface SearchDAO {
     suspend fun getLocations(): List<String>
     
     /**
+     * Full-text search within a specific record's maintenances.
+     */
+    @Query("""
+        SELECT DISTINCT 'maintenance' as type, m.id as id, m.type as title,
+               m.description as subtitle, m.description as description,
+               m.record_id as recordId
+        FROM maintenances m
+        WHERE m.record_id = :recordId
+           AND (m.description LIKE '%' || :query || '%'
+               OR m.type LIKE '%' || :query || '%'
+               OR m.performed_by LIKE '%' || :query || '%'
+               OR m.location LIKE '%' || :query || '%'
+               OR m.parts_replaced LIKE '%' || :query || '%'
+               OR m.notes LIKE '%' || :query || '%')
+        ORDER BY m.maintenance_date DESC
+        LIMIT :limit
+    """)
+    suspend fun searchMaintenancesByRecordId(
+        recordId: Long,
+        query: String,
+        limit: Int = 50
+    ): List<SearchResultEntity>
+
+    /**
+     * Full-text search within a specific record's maintenances as Flow.
+     */
+    @Query("""
+        SELECT DISTINCT 'maintenance' as type, m.id as id, m.type as title,
+               m.description as subtitle, m.description as description,
+               m.record_id as recordId
+        FROM maintenances m
+        WHERE m.record_id = :recordId
+           AND (m.description LIKE '%' || :query || '%'
+               OR m.type LIKE '%' || :query || '%'
+               OR m.performed_by LIKE '%' || :query || '%'
+               OR m.location LIKE '%' || :query || '%'
+               OR m.parts_replaced LIKE '%' || :query || '%'
+               OR m.notes LIKE '%' || :query || '%')
+        ORDER BY m.maintenance_date DESC
+        LIMIT :limit
+    """)
+    fun searchMaintenancesByRecordIdFlow(
+        recordId: Long,
+        query: String,
+        limit: Int = 50
+    ): Flow<List<SearchResultEntity>>
+
+    /**
      * Full-text search across all text fields in both records and maintenances.
      */
     @Query("""
         SELECT DISTINCT 'record' as type, r.id as id, r.name as title, 
-               COALESCE(r.brand_model, '') as subtitle, COALESCE(r.description, '') as description
+               COALESCE(r.brand_model, '') as subtitle, COALESCE(r.description, '') as description,
+               NULL as recordId
         FROM records r
         WHERE r.name LIKE '%' || :query || '%' 
            OR r.brand_model LIKE '%' || :query || '%'
@@ -197,7 +246,8 @@ interface SearchDAO {
         UNION ALL
         
         SELECT DISTINCT 'maintenance' as type, m.id as id, m.type as title,
-               'Record: ' || r.name as subtitle, m.description as description
+               'Record: ' || r.name as subtitle, m.description as description,
+               m.record_id as recordId
         FROM maintenances m
         INNER JOIN records r ON m.record_id = r.id
         WHERE m.description LIKE '%' || :query || '%'

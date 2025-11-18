@@ -26,6 +26,13 @@ class FullTextSearchUseCase @Inject constructor(
         return searchRepository.fullTextSearchFlow(query, limit)
     }
 
+    /**
+     * Get search results for a specific record as Flow for real-time updates.
+     */
+    fun executeAsFlowByRecordId(recordId: Long, query: String, limit: Int = 50): Flow<List<SearchResult>> {
+        return searchRepository.searchMaintenancesByRecordIdFlow(recordId, query, limit)
+    }
+
     data class Params(
         val query: String,
         val limit: Int = 50

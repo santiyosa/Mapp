@@ -7,12 +7,16 @@ sealed class Screen(val route: String) {
     
     // Main screens
     object Home : Screen("home")
-    object Search : Screen("search")
+    object Search : Screen("search?recordId={recordId}") {
+        fun createRoute(recordId: Long? = null) = if (recordId != null) "search?recordId=$recordId" else "search"
+    }
     object Settings : Screen("settings")
     
     // Record screens
-    object RecordDetail : Screen("record_detail/{recordId}") {
-        fun createRoute(recordId: Long) = "record_detail/$recordId"
+    object RecordDetail : Screen("record_detail/{recordId}?maintenanceId={maintenanceId}") {
+        fun createRoute(recordId: Long, maintenanceId: Long? = null) = 
+            if (maintenanceId != null) "record_detail/$recordId?maintenanceId=$maintenanceId" 
+            else "record_detail/$recordId"
     }
     
     object CreateRecord : Screen("create_record")

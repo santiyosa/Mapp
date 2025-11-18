@@ -42,6 +42,7 @@ import com.maintenance.app.utils.ImageManager
 fun RecordDetailScreen(
     recordId: Long,
     navController: NavController,
+    initialMaintenanceId: Long? = null,
     viewModel: RecordDetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -49,7 +50,7 @@ fun RecordDetailScreen(
     val shareLoading by viewModel.shareLoading.collectAsState()
     val shareError by viewModel.shareError.collectAsState()
     
-    var selectedMaintenanceId by remember { mutableStateOf<Long?>(null) }
+    var selectedMaintenanceId by remember { mutableStateOf(initialMaintenanceId) }
     
     LaunchedEffect(recordId) {
         viewModel.loadRecord(recordId)
@@ -76,6 +77,7 @@ fun RecordDetailScreen(
         navController = navController,
         showBottomBar = true,
         showBackButton = true,
+        recordId = recordId,
         onBackClick = { navController.navigateUp() },
         actions = {
             // Share buttons

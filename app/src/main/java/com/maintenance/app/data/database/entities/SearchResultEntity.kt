@@ -9,5 +9,6 @@ data class SearchResultEntity(
     val id: Long,
     val title: String,
     val subtitle: String,
-    val description: String
+    val description: String,
+    val recordId: Long? = null  // For 'maintenance' type, the associated record ID
 )

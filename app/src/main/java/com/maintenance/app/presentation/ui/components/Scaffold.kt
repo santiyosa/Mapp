@@ -24,6 +24,7 @@ fun MainScaffold(
     navController: NavController? = null,
     showBottomBar: Boolean = true,
     showBackButton: Boolean = false,
+    recordId: Long? = null,
     onBackClick: (() -> Unit)? = null,
     actions: @Composable () -> Unit = {},
     floatingActionButton: @Composable () -> Unit = {},
@@ -59,7 +60,7 @@ fun MainScaffold(
         },
         bottomBar = {
             if (showBottomBar && navController != null) {
-                MainBottomNavigation(navController = navController)
+                MainBottomNavigation(navController = navController, recordId = recordId)
             }
         },
         floatingActionButton = floatingActionButton,

@@ -50,6 +50,7 @@ class SearchViewModel @Inject constructor(
     private val _errorMessage = MutableStateFlow<String?>(null)
     private val _isAdvancedSearchExpanded = MutableStateFlow(false)
     private val _advancedFilters = MutableStateFlow(AdvancedSearchFilters())
+    private val _contextRecordId = MutableStateFlow<Long?>(null)
 
     // Public read-only states
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
@@ -60,6 +61,7 @@ class SearchViewModel @Inject constructor(
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
     val isAdvancedSearchExpanded: StateFlow<Boolean> = _isAdvancedSearchExpanded.asStateFlow()
     val advancedFilters: StateFlow<AdvancedSearchFilters> = _advancedFilters.asStateFlow()
+    val contextRecordId: StateFlow<Long?> = _contextRecordId.asStateFlow()
 
     // Derived states
     val hasResults: StateFlow<Boolean> = _searchResults.map { it.isNotEmpty() }.stateIn(
@@ -83,20 +85,27 @@ class SearchViewModel @Inject constructor(
      * Set up debounced search flow.
      */
     private fun setupSearchFlow() {
-        _searchQuery
+        combine(
+            _searchQuery,
+            _contextRecordId
+        ) { query, recordId ->
+            query to recordId
+        }
             .debounce(SEARCH_DEBOUNCE_TIME_MS)
             .distinctUntilChanged()
-            .filter { it.length >= MIN_QUERY_LENGTH }
+            .filter { (query, _) -> query.length >= MIN_QUERY_LENGTH }
             .onEach { _ ->
                 _isLoading.value = true
                 _errorMessage.value = null
             }
-            .flatMapLatest { query ->
-                fullTextSearchUseCase.executeAsFlow(query, DEFAULT_RESULTS_LIMIT)
-                    .catch { exception ->
-                        _errorMessage.value = exception.message ?: "Search failed"
-                        emit(emptyList())
-                    }
+            .flatMapLatest { (query, recordId) ->
+                if (recordId != null && recordId > 0) {
+                    // Contextual search: search only within the specific record
+                    fullTextSearchUseCase.executeAsFlowByRecordId(recordId, query, DEFAULT_RESULTS_LIMIT)
+                } else {
+                    // Global search: search all records and maintenances
+                    fullTextSearchUseCase.executeAsFlow(query, DEFAULT_RESULTS_LIMIT)
+                }
             }
             .onEach { results ->
                 _searchResults.value = results
@@ -352,5 +361,14 @@ class SearchViewModel @Inject constructor(
     fun updateSortBy(sortOption: SortOption) {
         val current = _advancedFilters.value
         _advancedFilters.value = current.copy(sortBy = sortOption)
+    }
+
+    /**
+     * Set context record ID for filtering search results to a specific record.
+     */
+    fun setContextRecordId(recordId: Long?) {
+        _contextRecordId.value = recordId
+        // Clear existing results when context changes
+        _searchResults.value = emptyList()
     }
 }

@@ -9,7 +9,8 @@ data class SearchResult(
     val title: String,
     val subtitle: String,
     val description: String,
-    val relevanceScore: Float = 0f
+    val relevanceScore: Float = 0f,
+    val recordId: Long? = null  // For MAINTENANCE type results, the associated record ID
 )
 
 /**

@@ -33,8 +33,20 @@ fun MainNavHost(
             HomeScreen(navController = navController)
         }
         
-        composable(Screen.Search.route) {
-            SearchScreenAdvanced(navController = navController)
+        composable(
+            route = Screen.Search.route,
+            arguments = listOf(
+                navArgument(Screen.RECORD_ID_ARG) {
+                    type = NavType.LongType
+                    defaultValue = -1L
+                }
+            )
+        ) { backStackEntry ->
+            val recordId = backStackEntry.arguments?.getLong(Screen.RECORD_ID_ARG) ?: -1L
+            SearchScreenAdvanced(
+                navController = navController,
+                recordId = if (recordId > 0) recordId else null
+            )
         }
         
         composable(Screen.Settings.route) {
@@ -52,13 +64,20 @@ fun MainNavHost(
             arguments = listOf(
                 navArgument(Screen.RECORD_ID_ARG) {
                     type = NavType.LongType
+                    defaultValue = -1L
+                },
+                navArgument("maintenanceId") {
+                    type = NavType.LongType
+                    defaultValue = -1L
                 }
             )
         ) { backStackEntry ->
             val recordId = backStackEntry.arguments?.getLong(Screen.RECORD_ID_ARG) ?: 0L
+            val maintenanceId = backStackEntry.arguments?.getLong("maintenanceId") ?: -1L
             RecordDetailScreen(
                 recordId = recordId,
-                navController = navController
+                navController = navController,
+                initialMaintenanceId = if (maintenanceId > 0) maintenanceId else null
             )
         }
         

@@ -24,6 +24,16 @@ interface SearchRepository {
     fun fullTextSearchFlow(query: String, limit: Int = 50): Flow<List<SearchResult>>
     
     /**
+     * Search maintenances within a specific record.
+     */
+    suspend fun searchMaintenancesByRecordId(recordId: Long, query: String, limit: Int = 50): List<SearchResult>
+    
+    /**
+     * Search maintenances within a specific record as Flow.
+     */
+    fun searchMaintenancesByRecordIdFlow(recordId: Long, query: String, limit: Int = 50): Flow<List<SearchResult>>
+    
+    /**
      * Search records by name.
      */
     suspend fun searchRecords(query: String, limit: Int = 50): List<Record>

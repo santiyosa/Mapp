@@ -36,8 +36,14 @@ import java.time.LocalDate
 @Composable
 fun SearchScreenAdvanced(
     navController: NavController,
+    recordId: Long? = null,
     viewModel: SearchViewModel = hiltViewModel()
 ) {
+    // Set context recordId in ViewModel
+    LaunchedEffect(recordId) {
+        viewModel.setContextRecordId(recordId)
+    }
+    
     val searchQuery by viewModel.searchQuery.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val searchResults by viewModel.searchResults.collectAsState()
@@ -47,10 +53,11 @@ fun SearchScreenAdvanced(
     var showFilters by remember { mutableStateOf(false) }
 
     MainScaffold(
-        title = "Buscar",
+        title = if (recordId != null) "Buscar Mantenimientos" else "Buscar",
         navController = navController,
-        showBottomBar = true,
-        showBackButton = false
+        showBottomBar = recordId == null,
+        showBackButton = recordId != null,
+        onBackClick = { if (recordId != null) navController.navigateUp() }
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -62,6 +69,7 @@ fun SearchScreenAdvanced(
                 query = searchQuery,
                 onQueryChange = { viewModel.updateSearchQuery(it) },
                 onSearch = { viewModel.executeSearch(it) },
+                isContextual = recordId != null,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp)
@@ -139,11 +147,19 @@ fun SearchScreenAdvanced(
                                                 )
                                             }
                                             com.maintenance.app.domain.model.SearchResultType.MAINTENANCE -> {
-                                                // For maintenance, we could navigate to edit or show details
-                                                // For now, let's navigate to the maintenance edit screen
-                                                navController.navigate(
-                                                    Screen.EditMaintenance.createRoute(result.id)
-                                                )
+                                                // If in contextual search (within a record), navigate back to record detail
+                                                // Otherwise, go to edit maintenance
+                                                if (recordId != null) {
+                                                    // Contextual search: navigate back to record detail with maintenance ID to show dialog
+                                                    navController.navigate(
+                                                        Screen.RecordDetail.createRoute(recordId, result.id)
+                                                    )
+                                                } else {
+                                                    // Global search: navigate to maintenance edit
+                                                    navController.navigate(
+                                                        Screen.EditMaintenance.createRoute(result.id)
+                                                    )
+                                                }
                                             }
                                         }
                                     }
@@ -162,13 +178,19 @@ private fun SearchBar(
     query: String,
     onQueryChange: (String) -> Unit,
     onSearch: (String) -> Unit,
+    isContextual: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     OutlinedTextField(
         value = query,
         onValueChange = onQueryChange,
         modifier = modifier.height(50.dp),
-        placeholder = { Text("Buscar registros...") },
+        placeholder = { 
+            Text(
+                if (isContextual) "Buscar en mantenimientos..." 
+                else "Buscar registros..."
+            ) 
+        },
         leadingIcon = {
             Icon(Icons.Default.Search, contentDescription = "Buscar")
         },
