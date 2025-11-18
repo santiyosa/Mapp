@@ -113,21 +113,6 @@ fun MainNavHost(
             )
         }
 
-        // Maintenance detail screen
-        composable(
-            route = Screen.MaintenanceDetail.route,
-            arguments = listOf(
-                navArgument(Screen.MAINTENANCE_ID_ARG) {
-                    type = NavType.LongType
-                }
-            )
-        ) { backStackEntry ->
-            val maintenanceId = backStackEntry.arguments?.getLong(Screen.MAINTENANCE_ID_ARG) ?: 0L
-            // For now, navigate back or show a placeholder
-            // TODO: Implement MaintenanceDetailScreen if needed
-            navController.popBackStack()
-        }
-
         // Backup screen
         composable(Screen.Backup.route) {
             BackupScreen()

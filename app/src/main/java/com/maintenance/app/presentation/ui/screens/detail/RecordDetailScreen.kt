@@ -30,6 +30,7 @@ import kotlinx.coroutines.launch
 import com.maintenance.app.R
 import com.maintenance.app.presentation.navigation.Screen
 import com.maintenance.app.presentation.ui.components.*
+import com.maintenance.app.presentation.ui.screens.maintenance.detail.MaintenanceDetailDialog
 import com.maintenance.app.presentation.viewmodels.detail.RecordDetailViewModel
 import com.maintenance.app.presentation.viewmodels.detail.RecordDetailUiState
 import com.maintenance.app.utils.ImageManager
@@ -48,6 +49,8 @@ fun RecordDetailScreen(
     val shareLoading by viewModel.shareLoading.collectAsState()
     val shareError by viewModel.shareError.collectAsState()
     
+    var selectedMaintenanceId by remember { mutableStateOf<Long?>(null) }
+    
     LaunchedEffect(recordId) {
         viewModel.loadRecord(recordId)
     }
@@ -57,6 +60,15 @@ fun RecordDetailScreen(
         LaunchedEffect(error) {
             // Can show snackbar here if needed
         }
+    }
+    
+    // Show maintenance detail dialog
+    selectedMaintenanceId?.let { maintenanceId ->
+        MaintenanceDetailDialog(
+            maintenanceId = maintenanceId,
+            navController = navController,
+            onDismiss = { selectedMaintenanceId = null }
+        )
     }
     
     MainScaffold(
@@ -174,9 +186,7 @@ fun RecordDetailScreen(
                             MaintenanceCard(
                                 maintenance = maintenance,
                                 onClick = {
-                                    navController.navigate(
-                                        Screen.MaintenanceDetail.createRoute(maintenance.id)
-                                    )
+                                    selectedMaintenanceId = maintenance.id
                                 },
                                 onEditClick = {
                                     navController.navigate(

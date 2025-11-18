@@ -198,34 +198,21 @@ private fun EditMaintenanceContent(
             modifier = Modifier.fillMaxWidth()
         )
 
-        // Cost and Currency Row
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            OutlinedTextField(
-                value = viewModel.cost,
-                onValueChange = viewModel::updateCost,
-                label = { Text("Costo") },
-                placeholder = { Text("0.00") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                isError = viewModel.costError != null,
-                supportingText = {
-                    viewModel.costError?.let { error ->
-                        Text(error, color = MaterialTheme.colorScheme.error)
-                    }
-                },
-                modifier = Modifier.weight(2f)
-            )
-
-            OutlinedTextField(
-                value = viewModel.currency,
-                onValueChange = viewModel::updateCurrency,
-                label = { Text("Moneda") },
-                placeholder = { Text("USD") },
-                modifier = Modifier.weight(1f)
-            )
-        }
+        // Cost field
+        OutlinedTextField(
+            value = viewModel.cost,
+            onValueChange = viewModel::updateCost,
+            label = { Text("Costo") },
+            placeholder = { Text("0.00") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            isError = viewModel.costError != null,
+            supportingText = {
+                viewModel.costError?.let { error ->
+                    Text(error, color = MaterialTheme.colorScheme.error)
+                }
+            },
+            modifier = Modifier.fillMaxWidth()
+        )
 
         // Performed by field
         OutlinedTextField(
@@ -244,53 +231,6 @@ private fun EditMaintenanceContent(
             placeholder = { Text("Donde se realizó el mantenimiento") },
             modifier = Modifier.fillMaxWidth()
         )
-
-        // Duration field
-        OutlinedTextField(
-            value = viewModel.durationMinutes,
-            onValueChange = viewModel::updateDuration,
-            label = { Text("Duración (minutos)") },
-            placeholder = { Text("60") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        // Priority selection
-        Card(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Column(
-                modifier = Modifier.padding(16.dp)
-            ) {
-                Text(
-                    text = "Prioridad",
-                    style = MaterialTheme.typography.titleSmall,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-                
-                Maintenance.Priority.values().forEach { priority ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .selectable(
-                                selected = viewModel.priority == priority,
-                                onClick = { viewModel.updatePriority(priority) }
-                            )
-                            .padding(vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        RadioButton(
-                            selected = viewModel.priority == priority,
-                            onClick = { viewModel.updatePriority(priority) }
-                        )
-                        Text(
-                            text = priority.displayName,
-                            modifier = Modifier.padding(start = 8.dp)
-                        )
-                    }
-                }
-            }
-        }
 
         // Parts replaced field
         OutlinedTextField(

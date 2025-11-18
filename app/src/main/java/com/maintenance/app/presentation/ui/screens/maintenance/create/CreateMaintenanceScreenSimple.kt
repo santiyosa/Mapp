@@ -109,8 +109,8 @@ fun CreateMaintenanceScreenSimple(
                     MaintenanceTextField(
                         value = viewModel.type,
                         onValueChange = viewModel::updateType,
-                        label = "Type*",
-                        placeholder = "e.g., PREVENTIVE, CORRECTIVE",
+                        label = "Tipo de Mantenimiento*",
+                        placeholder = "Ej: Preventivo, Correctivo",
                         isError = false,
                         keyboardType = KeyboardType.Text,
                         modifier = Modifier.fillMaxWidth()
@@ -120,8 +120,8 @@ fun CreateMaintenanceScreenSimple(
                     MaintenanceTextField(
                         value = viewModel.description,
                         onValueChange = viewModel::updateDescription,
-                        label = "Description*",
-                        placeholder = "Describe the work",
+                        label = "Descripción*",
+                        placeholder = "Describe el mantenimiento",
                         isError = false,
                         keyboardType = KeyboardType.Text,
                         maxLines = 3,
@@ -132,7 +132,7 @@ fun CreateMaintenanceScreenSimple(
                     OutlinedTextField(
                         value = viewModel.maintenanceDate?.toString() ?: "",
                         onValueChange = { },
-                        label = { Text("Maintenance Date*") },
+                        label = { Text("Fecha de Mantenimiento*") },
                         readOnly = true,
                         enabled = false,
                         modifier = Modifier.fillMaxWidth()
@@ -142,21 +142,10 @@ fun CreateMaintenanceScreenSimple(
                     MaintenanceTextField(
                         value = viewModel.cost,
                         onValueChange = viewModel::updateCost,
-                        label = "Cost",
+                        label = "Costo",
                         placeholder = "0.00",
                         isError = false,
                         keyboardType = KeyboardType.Decimal,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    // Currency field
-                    MaintenanceTextField(
-                        value = viewModel.currency,
-                        onValueChange = viewModel::updateCurrency,
-                        label = "Currency",
-                        placeholder = "USD",
-                        isError = false,
-                        keyboardType = KeyboardType.Text,
                         modifier = Modifier.fillMaxWidth()
                     )
 
@@ -164,8 +153,8 @@ fun CreateMaintenanceScreenSimple(
                     MaintenanceTextField(
                         value = viewModel.performedBy,
                         onValueChange = viewModel::updatePerformedBy,
-                        label = "Performed By",
-                        placeholder = "Technician name",
+                        label = "Realizado por",
+                        placeholder = "Nombre del técnico",
                         isError = false,
                         keyboardType = KeyboardType.Text,
                         modifier = Modifier.fillMaxWidth()
@@ -175,21 +164,10 @@ fun CreateMaintenanceScreenSimple(
                     MaintenanceTextField(
                         value = viewModel.location,
                         onValueChange = viewModel::updateLocation,
-                        label = "Location",
-                        placeholder = "Where was this done?",
+                        label = "Ubicación",
+                        placeholder = "Donde se realizó",
                         isError = false,
                         keyboardType = KeyboardType.Text,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    // Duration field
-                    MaintenanceTextField(
-                        value = viewModel.durationMinutes,
-                        onValueChange = viewModel::updateDuration,
-                        label = "Duration (minutes)",
-                        placeholder = "0",
-                        isError = false,
-                        keyboardType = KeyboardType.Number,
                         modifier = Modifier.fillMaxWidth()
                     )
 
@@ -197,36 +175,20 @@ fun CreateMaintenanceScreenSimple(
                     MaintenanceTextField(
                         value = viewModel.partsReplaced,
                         onValueChange = viewModel::updatePartsReplaced,
-                        label = "Parts Replaced",
-                        placeholder = "List of parts",
+                        label = "Piezas Reemplazadas",
+                        placeholder = "Lista de componentes",
                         isError = false,
                         keyboardType = KeyboardType.Text,
                         maxLines = 2,
                         modifier = Modifier.fillMaxWidth()
                     )
 
-                    // Priority selector
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Text("Priority:", style = MaterialTheme.typography.bodyMedium)
-                        Maintenance.Priority.values().forEach { priority ->
-                            FilterChip(
-                                selected = viewModel.priority == priority,
-                                onClick = { viewModel.updatePriority(priority) },
-                                label = { Text(priority.name) }
-                            )
-                        }
-                    }
-
                     // Notes field
                     MaintenanceTextField(
                         value = viewModel.notes,
                         onValueChange = viewModel::updateNotes,
-                        label = "Notes",
-                        placeholder = "Additional notes",
+                        label = "Notas",
+                        placeholder = "Notas adicionales",
                         isError = false,
                         keyboardType = KeyboardType.Text,
                         maxLines = 3,
@@ -237,7 +199,7 @@ fun CreateMaintenanceScreenSimple(
 
                     // Save button
                     MaintenanceButton(
-                        text = if (uiState is CreateMaintenanceUiState.Loading) "Saving..." else "Save Maintenance",
+                        text = if (uiState is CreateMaintenanceUiState.Loading) "Guardando..." else "Guardar Mantenimiento",
                         onClick = { viewModel.createMaintenance(recordId) },
                         enabled = uiState !is CreateMaintenanceUiState.Loading && 
                                 viewModel.description.isNotBlank() &&
