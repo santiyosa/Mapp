@@ -115,7 +115,11 @@ fun MainNavHost(
 
         // Backup screen
         composable(Screen.Backup.route) {
-            BackupScreen()
+            BackupScreen(
+                onNavigateBack = {
+                    navController.popBackStack()
+                }
+            )
         }
     }
 }
