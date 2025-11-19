@@ -182,7 +182,7 @@ fun RecordDetailScreen(
                             },
                             modifier = Modifier.weight(1f)
                         ) {
-                            Text("Programar")
+                            Text(stringResource(R.string.programar))
                         }
                         
                         // Share with maintenances button
@@ -195,7 +195,7 @@ fun RecordDetailScreen(
                             modifier = Modifier.weight(1f),
                             enabled = currentState.maintenances.isNotEmpty()
                         ) {
-                            Text("Compartir +")
+                            Text(stringResource(R.string.compartir))
                         }
                     }
                     
@@ -429,7 +429,7 @@ private fun MaintenanceCard(
                     IconButton(onClick = editClick) {
                         Icon(
                             imageVector = Icons.Default.Edit,
-                            contentDescription = "Editar mantenimiento",
+                            contentDescription = stringResource(R.string.edit_maintenance_icon),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
@@ -464,7 +464,7 @@ fun ImageThumbnails(
             bitmap?.let { bmp ->
                 Image(
                     bitmap = bmp,
-                    contentDescription = "Mantenimiento imagen",
+                    contentDescription = stringResource(R.string.maintenance_image),
                     modifier = Modifier
                         .size(60.dp)
                         .clip(RoundedCornerShape(8.dp))

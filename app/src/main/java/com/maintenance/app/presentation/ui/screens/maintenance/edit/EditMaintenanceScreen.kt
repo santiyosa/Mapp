@@ -14,10 +14,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.maintenance.app.R
 import com.maintenance.app.domain.model.Maintenance
 import com.maintenance.app.presentation.ui.components.MainScaffold
 import com.maintenance.app.presentation.ui.components.images.ImagePicker
@@ -71,8 +73,8 @@ fun EditMaintenanceScreen(
     if (showDeleteConfirmation) {
         AlertDialog(
             onDismissRequest = { showDeleteConfirmation = false },
-            title = { Text("Eliminar Mantenimiento") },
-            text = { Text("¿Estás seguro de que deseas eliminar este mantenimiento? Esta acción no se puede deshacer.") },
+            title = { Text(stringResource(R.string.delete_maintenance_confirmation)) },
+            text = { Text(stringResource(R.string.delete_maintenance_message)) },
             confirmButton = {
                 Button(
                     onClick = {
@@ -80,14 +82,14 @@ fun EditMaintenanceScreen(
                         viewModel.deleteMaintenance()
                     }
                 ) {
-                    Text("Eliminar")
+                    Text(stringResource(R.string.delete))
                 }
             },
             dismissButton = {
                 TextButton(
                     onClick = { showDeleteConfirmation = false }
                 ) {
-                    Text("Cancelar")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
@@ -107,7 +109,7 @@ fun EditMaintenanceScreen(
             ) {
                 Icon(
                     imageVector = Icons.Default.Delete,
-                    contentDescription = "Eliminar mantenimiento",
+                    contentDescription = stringResource(R.string.edit_icon_desc),
                     tint = MaterialTheme.colorScheme.error
                 )
             }
@@ -125,7 +127,7 @@ fun EditMaintenanceScreen(
                 } else {
                     Icon(
                         imageVector = Icons.Default.Check,
-                        contentDescription = "Guardar cambios"
+                        contentDescription = stringResource(R.string.save)
                     )
                 }
             }

@@ -15,10 +15,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.maintenance.app.R
 import com.maintenance.app.presentation.share.ShareViewModel
 import com.maintenance.app.presentation.utils.ShareManager
 
@@ -46,10 +48,10 @@ fun ShareScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Share Maintenance") },
+                title = { Text(stringResource(R.string.share_maintenance)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.nav_back))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -124,7 +126,7 @@ fun ShareScreen(
                     ) {
                         Image(
                             bitmap = uiState.generatedBitmap!!.asImageBitmap(),
-                            contentDescription = "Generated Maintenance Image",
+                            contentDescription = stringResource(R.string.generated_maintenance_image),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(400.dp),
@@ -161,7 +163,7 @@ fun ShareScreen(
                                 ) {
                                     Icon(
                                         Icons.Default.Edit,
-                                        contentDescription = "Edit message",
+                                        contentDescription = stringResource(R.string.edit_icon_description),
                                         modifier = Modifier.size(20.dp)
                                     )
                                 }
@@ -211,7 +213,7 @@ fun ShareScreen(
                                 containerColor = MaterialTheme.colorScheme.tertiary
                             )
                         ) {
-                            Text("Share to WhatsApp 📱")
+                            Text(stringResource(R.string.share_to_whatsapp))
                         }
                     } else {
                         OutlinedButton(
@@ -221,7 +223,7 @@ fun ShareScreen(
                             },
                             enabled = false
                         ) {
-                            Text("WhatsApp not installed")
+                            Text(stringResource(R.string.whatsapp_not_installed))
                         }
                     }
 
@@ -234,7 +236,7 @@ fun ShareScreen(
                             }
                         }
                     ) {
-                        Text("Share via... 📤")
+                        Text(stringResource(R.string.share_via))
                     }
 
                     // Copy to Clipboard Button
@@ -246,7 +248,7 @@ fun ShareScreen(
                             }
                         }
                     ) {
-                        Text("Copy Message 📋")
+                        Text(stringResource(R.string.copy_message))
                     }
                 }
 
@@ -304,7 +306,7 @@ fun EditMessageDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Edit Share Message") },
+        title = { Text(stringResource(R.string.edit_share_message)) },
         text = {
             TextField(
                 value = text,
@@ -312,7 +314,7 @@ fun EditMessageDialog(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp),
-                label = { Text("Message") },
+                label = { Text(stringResource(R.string.message_label)) },
                 maxLines = 8
             )
         },
@@ -322,12 +324,12 @@ fun EditMessageDialog(
                     onConfirm(text)
                 }
             ) {
-                Text("Save")
+                Text(stringResource(R.string.save))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.cancel))
             }
         }
     )

@@ -30,9 +30,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.maintenance.app.R
 import com.maintenance.app.domain.model.AppLanguage
 import com.maintenance.app.domain.model.ThemeMode
 import com.maintenance.app.presentation.navigation.Screen
@@ -71,10 +73,10 @@ fun SettingsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Settings") },
+                title = { Text(stringResource(R.string.settings_title)) },
                 navigationIcon = {
                     TextButton(onClick = onNavigateBack) {
-                        Text("Back")
+                        Text(stringResource(R.string.nav_back))
                     }
                 }
             )
@@ -119,7 +121,7 @@ fun SettingsScreen(
 
             // Theme Section
             Text(
-                text = "Theme",
+                text = stringResource(R.string.theme),
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(top = 24.dp, bottom = 8.dp)
             )
@@ -131,9 +133,9 @@ fun SettingsScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Theme Mode: ${uiState.appSettings?.themeMode?.name ?: "System"}")
+                Text(stringResource(R.string.theme_mode, uiState.appSettings?.themeMode?.name ?: stringResource(R.string.system)))
                 Button(onClick = { showThemeMenu = true }) {
-                    Text("Change")
+                    Text(stringResource(R.string.change))
                 }
             }
 
@@ -156,7 +158,7 @@ fun SettingsScreen(
 
             // Language Section
             Text(
-                text = "Language",
+                text = stringResource(R.string.language_settings),
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
             )
@@ -168,9 +170,9 @@ fun SettingsScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Language: ${uiState.appSettings?.language?.name ?: "Spanish"}")
+                Text(stringResource(R.string.language, uiState.appSettings?.language?.name ?: "Spanish"))
                 Button(onClick = { showLanguageMenu = true }) {
-                    Text("Change")
+                    Text(stringResource(R.string.change))
                 }
             }
 
@@ -193,7 +195,7 @@ fun SettingsScreen(
 
             // Notifications Section
             Text(
-                text = "Notifications",
+                text = stringResource(R.string.notifications),
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
             )
@@ -205,7 +207,7 @@ fun SettingsScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Enable Notifications")
+                Text(stringResource(R.string.enable_notifications))
                 Switch(
                     checked = uiState.appSettings?.enableNotifications ?: true,
                     onCheckedChange = { checked ->
@@ -219,7 +221,7 @@ fun SettingsScreen(
             // Biometric Section (only show if available)
             if (uiState.isBiometricAvailable) {
                 Text(
-                    text = "Biometric Security",
+                    text = stringResource(R.string.biometric_security),
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
                 )
@@ -231,7 +233,7 @@ fun SettingsScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Enable Biometric")
+                    Text(stringResource(R.string.enable_biometric))
                     Switch(
                         checked = uiState.isBiometricEnabled,
                         onCheckedChange = { checked ->
@@ -249,7 +251,7 @@ fun SettingsScreen(
 
             // Backup Section
             Text(
-                text = "Backup & Data",
+                text = stringResource(R.string.backup_data),
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
             )
@@ -261,7 +263,7 @@ fun SettingsScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Auto Backup")
+                Text(stringResource(R.string.auto_backup))
                 Switch(
                     checked = uiState.appSettings?.enableAutoBackup ?: true,
                     onCheckedChange = { checked ->
@@ -278,7 +280,7 @@ fun SettingsScreen(
                     navController?.navigate(Screen.Backup.route)
                 }
             ) {
-                Text("Manage Backups")
+                Text(stringResource(R.string.manage_backups))
             }
 
             // Trash Button
@@ -290,7 +292,7 @@ fun SettingsScreen(
                     navController?.navigate("trash")
                 }
             ) {
-                Text("Papelera (Registros Eliminados)")
+                Text(stringResource(R.string.trash))
             }
 
             // Reset and Clear Buttons
@@ -304,14 +306,14 @@ fun SettingsScreen(
                     modifier = Modifier.weight(1f),
                     onClick = { showResetDialog = true }
                 ) {
-                    Text("Reset Settings")
+                    Text(stringResource(R.string.reset_settings))
                 }
 
                 Button(
                     modifier = Modifier.weight(1f),
                     onClick = { showClearDataDialog = true }
                 ) {
-                    Text("Clear Data")
+                    Text(stringResource(R.string.clear_data))
                 }
             }
 
@@ -324,8 +326,8 @@ fun SettingsScreen(
     if (showResetDialog) {
         AlertDialog(
             onDismissRequest = { showResetDialog = false },
-            title = { Text("Reset Settings?") },
-            text = { Text("All settings will be reset to their default values.") },
+            title = { Text(stringResource(R.string.reset_settings_confirm)) },
+            text = { Text(stringResource(R.string.reset_settings_message)) },
             confirmButton = {
                 Button(
                     onClick = {
@@ -333,12 +335,12 @@ fun SettingsScreen(
                         showResetDialog = false
                     }
                 ) {
-                    Text("Reset")
+                    Text(stringResource(R.string.reset))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showResetDialog = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
@@ -348,8 +350,8 @@ fun SettingsScreen(
     if (showClearDataDialog) {
         AlertDialog(
             onDismissRequest = { showClearDataDialog = false },
-            title = { Text("Clear All Data?") },
-            text = { Text("This action cannot be undone. All data will be permanently deleted.") },
+            title = { Text(stringResource(R.string.clear_all_confirm)) },
+            text = { Text(stringResource(R.string.clear_all_message)) },
             confirmButton = {
                 Button(
                     onClick = {
@@ -357,12 +359,12 @@ fun SettingsScreen(
                         showClearDataDialog = false
                     }
                 ) {
-                    Text("Clear")
+                    Text(stringResource(R.string.clear))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showClearDataDialog = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )

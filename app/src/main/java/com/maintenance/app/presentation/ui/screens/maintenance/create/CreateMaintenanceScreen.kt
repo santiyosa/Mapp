@@ -32,7 +32,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
+import com.maintenance.app.R
 import com.maintenance.app.domain.model.Maintenance
 import com.maintenance.app.presentation.ui.components.LoadingIndicator
 import com.maintenance.app.presentation.ui.components.MaintenanceButton
@@ -60,10 +62,10 @@ fun CreateMaintenanceScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Create Maintenance") },
+                title = { Text(stringResource(R.string.create_maintenance)) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.nav_back))
                     }
                 },
                 actions = {
@@ -71,7 +73,7 @@ fun CreateMaintenanceScreen(
                         onClick = { viewModel.createMaintenance(recordId) },
                         enabled = uiState !is CreateMaintenanceUiState.Loading
                     ) {
-                        Icon(Icons.Default.Check, contentDescription = "Save")
+                        Icon(Icons.Default.Check, contentDescription = stringResource(R.string.save))
                     }
                 }
             )

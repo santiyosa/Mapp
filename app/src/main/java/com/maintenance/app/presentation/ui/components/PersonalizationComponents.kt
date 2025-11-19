@@ -13,8 +13,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import com.maintenance.app.R
 import com.maintenance.app.domain.model.AppLanguage
 import com.maintenance.app.domain.model.ThemeMode
 
@@ -33,7 +35,7 @@ fun ThemeSelector(
             .padding(8.dp)
     ) {
         Text(
-            text = "Theme",
+            text = stringResource(R.string.theme_label),
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.padding(bottom = 12.dp)
         )
@@ -70,7 +72,7 @@ fun ThemeSelector(
                 if (theme == selectedTheme) {
                     Icon(
                         imageVector = Icons.Default.Check,
-                        contentDescription = "Selected",
+                        contentDescription = stringResource(R.string.selected),
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.padding(end = 16.dp)
                     )
@@ -97,7 +99,7 @@ fun LanguageSelector(
             .padding(8.dp)
     ) {
         Text(
-            text = "Language",
+            text = stringResource(R.string.language_label),
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.padding(bottom = 12.dp)
         )
@@ -165,11 +167,11 @@ fun BiometricSettingCard(
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = "Biometric Authentication",
+                        text = stringResource(R.string.biometric_authentication),
                         style = MaterialTheme.typography.titleMedium
                     )
                     Text(
-                        text = if (isAvailable) "Fingerprint / Face Recognition" else "Not available on this device",
+                        text = if (isAvailable) stringResource(R.string.fingerprint_face) else stringResource(R.string.not_available_device),
                         style = MaterialTheme.typography.bodySmall,
                         color = if (isAvailable) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.error,
                         modifier = Modifier.padding(top = 4.dp)
@@ -186,7 +188,7 @@ fun BiometricSettingCard(
             if (isAvailable && isEnabled) {
                 Divider(modifier = Modifier.padding(vertical = 8.dp))
                 Text(
-                    text = "✓ Biometric authentication is enabled",
+                    text = stringResource(R.string.biometric_enabled),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(top = 8.dp)
@@ -211,7 +213,7 @@ fun FontSizeSelector(
             .padding(8.dp)
     ) {
         Text(
-            text = "Font Size",
+            text = stringResource(R.string.font_size_label),
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.padding(bottom = 12.dp)
         )
@@ -247,7 +249,7 @@ fun FontSizeSelector(
         }
 
         Text(
-            text = "Preview: Sample text (${(currentSize * 100).toInt()}%)",
+            text = stringResource(R.string.preview_text, (currentSize * 100).toInt().toString()),
             style = MaterialTheme.typography.bodyMedium.copy(
                 fontSize = MaterialTheme.typography.bodyMedium.fontSize * currentSize
             ),
@@ -277,11 +279,11 @@ fun NotificationPreference(
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = "Notifications",
+                text = stringResource(R.string.notifications_label),
                 style = MaterialTheme.typography.bodyMedium
             )
             Text(
-                text = if (isEnabled) "Enabled" else "Disabled",
+                text = if (isEnabled) stringResource(R.string.enabled) else stringResource(R.string.disabled),
                 style = MaterialTheme.typography.labelSmall,
                 color = if (isEnabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
                 modifier = Modifier.padding(top = 4.dp)

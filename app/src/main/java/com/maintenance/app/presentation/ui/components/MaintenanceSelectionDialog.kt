@@ -7,7 +7,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.maintenance.app.R
 import com.maintenance.app.domain.model.Maintenance
 import java.time.format.DateTimeFormatter
 
@@ -31,7 +33,7 @@ fun MaintenanceSelectionDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Seleccionar Mantenimientos") },
+        title = { Text(stringResource(R.string.select_maintenances)) },
         text = {
             Column(
                 modifier = Modifier
@@ -104,12 +106,12 @@ fun MaintenanceSelectionDialog(
                     onConfirm(selected)
                 }
             ) {
-                Text("Compartir")
+                Text(stringResource(R.string.compartir))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancelar")
+                Text(stringResource(R.string.cancel))
             }
         }
     )

@@ -15,10 +15,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.maintenance.app.R
 import com.maintenance.app.presentation.navigation.Screen
 import com.maintenance.app.presentation.ui.components.LoadingIndicator
 import com.maintenance.app.presentation.ui.components.MaintenanceTextField
@@ -94,7 +96,7 @@ fun SearchScreenAdvanced(
                         onClick = { viewModel.clearFilters() },
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text("Limpiar filtros")
+                        Text(stringResource(R.string.clear_filters))
                     }
                 }
             }
@@ -192,12 +194,12 @@ private fun SearchBar(
             ) 
         },
         leadingIcon = {
-            Icon(Icons.Default.Search, contentDescription = "Buscar")
+            Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search))
         },
         trailingIcon = {
             if (query.isNotEmpty()) {
                 IconButton(onClick = { onQueryChange("") }) {
-                    Icon(Icons.Default.Close, contentDescription = "Clear")
+                    Icon(Icons.Default.Close, contentDescription = stringResource(R.string.delete))
                 }
             }
         },
@@ -221,11 +223,11 @@ private fun FilterButton(
     ) {
         Icon(
             Icons.Default.FilterList,
-            contentDescription = "Filters",
+            contentDescription = stringResource(R.string.filters),
             modifier = Modifier.size(18.dp)
         )
         Spacer(modifier = Modifier.width(4.dp))
-        Text("Filters")
+        Text(stringResource(R.string.filters))
     }
 }
 

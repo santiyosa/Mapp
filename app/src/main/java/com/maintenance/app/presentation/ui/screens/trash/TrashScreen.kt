@@ -211,7 +211,7 @@ private fun TrashRecordCard(
                             .size(18.dp)
                             .padding(end = 4.dp)
                     )
-                    Text("Borrar")
+                    Text(stringResource(R.string.borrar))
                 }
             }
         }

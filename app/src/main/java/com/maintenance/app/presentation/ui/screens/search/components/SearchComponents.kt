@@ -15,11 +15,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.maintenance.app.R
 import com.maintenance.app.domain.model.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -45,7 +47,7 @@ fun AdvancedSearchFilters(
             modifier = Modifier.padding(16.dp)
         ) {
             Text(
-                text = "Advanced Search",
+                text = stringResource(R.string.advanced_search),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(bottom = 16.dp)
@@ -55,11 +57,11 @@ fun AdvancedSearchFilters(
             OutlinedTextField(
                 value = filters.query,
                 onValueChange = { onFiltersChange(filters.copy(query = it)) },
-                label = { Text("Search query") },
+                label = { Text(stringResource(R.string.search_query)) },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Search,
-                        contentDescription = "Query"
+                        contentDescription = stringResource(R.string.query)
                     )
                 },
                 singleLine = true,
@@ -79,11 +81,11 @@ fun AdvancedSearchFilters(
                         val cost = it.toDoubleOrNull()
                         onFiltersChange(filters.copy(minCost = cost))
                     },
-                    label = { Text("Min Cost") },
+                    label = { Text(stringResource(R.string.min_cost)) },
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Default.AttachMoney,
-                            contentDescription = "Min Cost"
+                            contentDescription = stringResource(R.string.min_cost)
                         )
                     },
                     singleLine = true,
@@ -96,11 +98,11 @@ fun AdvancedSearchFilters(
                         val cost = it.toDoubleOrNull()
                         onFiltersChange(filters.copy(maxCost = cost))
                     },
-                    label = { Text("Max Cost") },
+                    label = { Text(stringResource(R.string.max_cost)) },
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Default.AttachMoney,
-                            contentDescription = "Max Cost"
+                            contentDescription = stringResource(R.string.max_cost)
                         )
                     },
                     singleLine = true,

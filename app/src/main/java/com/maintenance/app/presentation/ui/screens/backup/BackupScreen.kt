@@ -67,10 +67,10 @@ fun BackupScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Backup & Restore") },
+                title = { Text(stringResource(R.string.backup_share_title)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.nav_back))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -201,7 +201,7 @@ fun BackupScreen(
                                             strokeWidth = 2.dp
                                         )
                                     }
-                                    Text("Create Backup Now")
+                                    Text(stringResource(R.string.create_backup_now))
                                 }
                             }
                         }
@@ -227,7 +227,7 @@ fun BackupScreen(
                                         horizontalArrangement = Arrangement.SpaceBetween,
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        Text("Enable Auto Backup")
+                                        Text(stringResource(R.string.enable_auto_backup))
                                         Switch(
                                             checked = schedule.enabled,
                                             onCheckedChange = { enabled ->
@@ -291,7 +291,7 @@ fun BackupScreen(
                                             horizontalArrangement = Arrangement.SpaceBetween,
                                             verticalAlignment = Alignment.CenterVertically
                                         ) {
-                                            Text("WiFi Only")
+                                            Text(stringResource(R.string.wifi_only))
                                             Switch(
                                                 checked = schedule.wifiOnly,
                                                 onCheckedChange = { wifiOnly ->
@@ -311,7 +311,7 @@ fun BackupScreen(
                                             horizontalArrangement = Arrangement.SpaceBetween,
                                             verticalAlignment = Alignment.CenterVertically
                                         ) {
-                                            Text("Charging Only")
+                                            Text(stringResource(R.string.charging_only))
                                             Switch(
                                                 checked = schedule.chargingOnly,
                                                 onCheckedChange = { chargingOnly ->
@@ -426,14 +426,14 @@ private fun BackupListItem(
                     IconButton(onClick = onRestore) {
                         Icon(
                             Icons.Default.FileDownload,
-                            contentDescription = "Restore",
+                            contentDescription = stringResource(R.string.restore_backup),
                             tint = MaterialTheme.colorScheme.primary
                         )
                     }
                     IconButton(onClick = onDelete) {
                         Icon(
                             Icons.Default.Delete,
-                            contentDescription = "Delete",
+                            contentDescription = stringResource(R.string.delete_backup),
                             tint = MaterialTheme.colorScheme.error
                         )
                     }
@@ -453,7 +453,7 @@ private fun CreateBackupDialog(
 
     androidx.compose.material3.AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Create Backup") },
+        title = { Text(stringResource(R.string.create_backup_title)) },
         text = {
             Column {
                 Text(
@@ -463,7 +463,7 @@ private fun CreateBackupDialog(
                 androidx.compose.material3.TextField(
                     value = backupName,
                     onValueChange = { backupName = it },
-                    placeholder = { Text("e.g., Backup ${System.currentTimeMillis()}") },
+                    placeholder = { Text(stringResource(R.string.backup_placeholder)) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 8.dp)
@@ -476,7 +476,7 @@ private fun CreateBackupDialog(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Enable Encryption")
+                    Text(stringResource(R.string.enable_encryption))
                     Switch(
                         checked = enableEncryption,
                         onCheckedChange = { enableEncryption = it }
@@ -492,12 +492,12 @@ private fun CreateBackupDialog(
                     }
                 }
             ) {
-                Text("Create")
+                Text(stringResource(R.string.save))
             }
         },
         dismissButton = {
             Button(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.cancel))
             }
         }
     )

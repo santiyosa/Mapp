@@ -36,6 +36,7 @@
     <string name="maintenance_cost">Costo</string>
     <string name="maintenance_type">Tipo de mantenimiento</string>
     <string name="add_maintenance">Agregar mantenimiento</string>
+    <string name="create_maintenance">Crear mantenimiento</string>
     <string name="edit_maintenance">Editar mantenimiento</string>
     <string name="delete_maintenance">Eliminar mantenimiento</string>
     <string name="maintenance_deleted">Mantenimiento eliminado</string>
@@ -117,4 +118,98 @@
     <string name="restore_record_confirmation">¿Deseas restaurar este registro?</string>
     <string name="permanently_delete_confirmation">¿Deseas eliminar permanentemente este registro? Esta acción no se puede deshacer.</string>
     <string name="permanently_delete">Borrar permanentemente</string>
+    
+    <!-- Share and Buttons -->
+    <string name="programar">Programar</string>
+    <string name="compartir">Compartir</string>
+    <string name="compartir_plus">Compartir +</string>
+    <string name="select_maintenances">Seleccionar Mantenimientos</string>
+    <string name="borrar">Borrar</string>
+    <string name="edit_maintenance_icon">Editar mantenimiento</string>
+    <string name="maintenance_image">Mantenimiento imagen</string>
+    <string name="share_to_whatsapp">Compartir por WhatsApp 📱</string>
+    <string name="whatsapp_not_installed">WhatsApp no está instalado</string>
+    <string name="share_via">Compartir vía... 📤</string>
+    <string name="copy_message">Copiar mensaje 📋</string>
+    <string name="edit_share_message">Editar mensaje de compartición</string>
+    <string name="save_message">Guardar</string>
+    <string name="message_label">Mensaje</string>
+    <string name="clear_filters">Limpiar filtros</string>
+    <string name="backup_share_title">Backup &amp; Restore</string>
+    <string name="create_backup_now">Crear respaldo ahora</string>
+    <string name="enable_auto_backup">Habilitar respaldo automático</string>
+    <string name="wifi_only">Solo WiFi</string>
+    <string name="charging_only">Solo cargando</string>
+    <string name="restore_backup">Restaurar</string>
+    <string name="delete_backup">Eliminar</string>
+    <string name="create_backup_title">Crear respaldo</string>
+    <string name="backup_placeholder">p.ej., Respaldo ${System.currentTimeMillis()}</string>
+    <string name="enable_encryption">Habilitar encriptación</string>
+    <string name="delete_all_data_confirmation">¿Eliminar todos los datos?</string>
+    <string name="delete_all_data_message">Se eliminarán permanentemente todos los registros y la configuración. Esta acción no se puede deshacer.</string>
+    <string name="filters">Filtros</string>
+    <string name="delete_maintenance_confirmation">Eliminar mantenimiento</string>
+    <string name="delete_maintenance_message">¿Estás seguro de que deseas eliminar este mantenimiento? Esta acción no se puede deshacer.</string>
+    <string name="generated_maintenance_image">Imagen de mantenimiento generada</string>
+    <string name="edit_icon_description">Editar mensaje</string>
+    <string name="edit_icon_desc">Editar mantenimiento</string>
+    
+    <!-- Search component labels -->
+    <string name="advanced_search">Búsqueda avanzada</string>
+    <string name="search_query">Consulta de búsqueda</string>
+    <string name="min_cost">Costo mínimo</string>
+    <string name="max_cost">Costo máximo</string>
+    <string name="query">Consulta</string>
+    
+    <!-- Language/Locale -->
+    <string name="language_label">Idioma</string>
+    
+    <!-- Settings Components -->
+    <string name="theme_label">Tema</string>
+    <string name="selected">Seleccionado</string>
+    <string name="biometric_authentication">Autenticación biométrica</string>
+    <string name="fingerprint_face">Huella dactilar / Reconocimiento facial</string>
+    <string name="not_available_device">No disponible en este dispositivo</string>
+    <string name="biometric_enabled">✓ La autenticación biométrica está habilitada</string>
+    <string name="font_size_label">Tamaño de fuente</string>
+    <string name="preview_text">Vista previa: Texto de ejemplo (%s%%)</string>
+    <string name="notifications_label">Notificaciones</string>
+    <string name="enabled">Habilitado</string>
+    <string name="disabled">Deshabilitado</string>
+    
+    <!-- Settings Sections -->
+    <string name="section_appearance">Apariencia</string>
+    <string name="section_security">Seguridad y privacidad</string>
+    <string name="section_data">Datos y respaldo</string>
+    <string name="section_data_management">Gestión de datos</string>
+    <string name="section_danger_zone">Zona de peligro</string>
+    
+    <!-- SettingsScreen.kt strings -->
+    <string name="settings_title">Configuración</string>
+    <string name="theme_mode">Modo de tema: %s</string>
+    <string name="system">Sistema</string>
+    <string name="change">Cambiar</string>
+    <string name="language">Idioma: %s</string>
+    <string name="enable_notifications">Habilitar notificaciones</string>
+    <string name="enable_biometric">Habilitar biometría</string>
+    <string name="manage_backups">Gestionar respaldos</string>
+    <string name="trash">Papelera (Registros Eliminados)</string>
+    <string name="reset_settings">Restablecer configuración</string>
+    <string name="clear_data">Borrar datos</string>
+    <string name="reset_settings_confirm">¿Restablecer configuración?</string>
+    <string name="reset_settings_message">Toda la configuración se restaurará a valores predeterminados.</string>
+    <string name="reset">Restablecer</string>
+    <string name="clear_all_confirm">¿Borrar todos los datos?</string>
+    <string name="clear_all_message">Esta acción no se puede deshacer. Todos los datos se eliminarán permanentemente.</string>
+    <string name="clear">Borrar</string>
+    <string name="theme">Tema</string>
+    <string name="language_settings">Idioma</string>
+    <string name="notifications">Notificaciones</string>
+    <string name="biometric_security">Seguridad Biométrica</string>
+    <string name="backup_data">Respaldo y Datos</string>
+    <string name="auto_backup">Respaldo automático</string>
+    <string name="backup_weekly">Respaldo semanal</string>
+    <string name="trash_title">Papelera (Registros Eliminados)</string>
+    <string name="clear_all_data">Borrar todos los datos</string>
+    <string name="reset_settings_confirmation">¿Restablecer configuración?</string>
 </resources>
