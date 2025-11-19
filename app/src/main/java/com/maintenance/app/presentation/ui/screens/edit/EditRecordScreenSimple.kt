@@ -5,26 +5,27 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.maintenance.app.R
+import com.maintenance.app.presentation.navigation.Screen
 import com.maintenance.app.presentation.ui.components.LoadingIndicator
-import com.maintenance.app.presentation.ui.components.MaintenanceButton
-import com.maintenance.app.presentation.ui.components.MaintenanceTextField
+import com.maintenance.app.presentation.ui.components.MainScaffold
 import com.maintenance.app.presentation.viewmodels.edit.EditRecordViewModel
 import com.maintenance.app.presentation.viewmodels.edit.EditRecordUiState
 
 /**
  * Screen for editing an existing maintenance record.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditRecordScreenSimple(
     recordId: Long,
@@ -33,6 +34,7 @@ fun EditRecordScreenSimple(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var showDeleteDialog by remember { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
     
     LaunchedEffect(recordId) {
         viewModel.loadRecord(recordId)
@@ -41,8 +43,8 @@ fun EditRecordScreenSimple(
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
-            title = { Text("Delete Record") },
-            text = { Text("Are you sure you want to delete this record? This action cannot be undone.") },
+            title = { Text(stringResource(R.string.delete_record)) },
+            text = { Text(stringResource(R.string.delete_record_confirmation)) },
             confirmButton = {
                 Button(
                     onClick = {
@@ -50,43 +52,35 @@ fun EditRecordScreenSimple(
                         viewModel.deleteRecord()
                     }
                 ) {
-                    Text("Delete")
+                    Text(stringResource(R.string.delete))
                 }
             },
             dismissButton = {
                 TextButton(
                     onClick = { showDeleteDialog = false }
                 ) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Edit Record") },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                },
-                actions = {
-                    IconButton(
-                        onClick = { showDeleteDialog = true },
-                        enabled = uiState !is EditRecordUiState.Loading
-                    ) {
-                        Icon(Icons.Default.Delete, contentDescription = "Delete")
-                    }
-                    IconButton(
-                        onClick = { viewModel.saveRecord() },
-                        enabled = uiState !is EditRecordUiState.Loading
-                    ) {
-                        Icon(Icons.Default.Check, contentDescription = "Save")
-                    }
-                }
-            )
+    MainScaffold(
+        title = stringResource(R.string.edit_record),
+        navController = navController,
+        showBottomBar = false,
+        showBackButton = true,
+        onBackClick = { navController.navigateUp() },
+        actions = {
+            IconButton(
+                onClick = { showDeleteDialog = true },
+                enabled = uiState !is EditRecordUiState.Loading
+            ) {
+                Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.delete))
+            }
+        },
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
         }
     ) { paddingValues ->
         when (uiState) {
@@ -100,137 +94,116 @@ fun EditRecordScreenSimple(
                 }
             }
             
+            is EditRecordUiState.Deleted -> {
+                LaunchedEffect(Unit) {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Home.route) { inclusive = true }
+                    }
+                }
+            }
+            
             is EditRecordUiState.Error -> {
-                Text(
-                    text = "Error: ${(uiState as EditRecordUiState.Error).message}",
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.padding(16.dp)
-                )
+                LaunchedEffect(uiState) {
+                    snackbarHostState.showSnackbar(
+                        message = (uiState as EditRecordUiState.Error).message,
+                        duration = SnackbarDuration.Long
+                    )
+                }
             }
             
             else -> {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
                         .padding(paddingValues)
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                        .padding(16.dp)
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    // Record name field
-                    MaintenanceTextField(
-                        value = viewModel.recordName,
-                        onValueChange = viewModel::updateRecordName,
-                        label = "Record Name*",
-                        placeholder = "e.g., Laptop HP",
-                        isError = false,
-                        keyboardType = KeyboardType.Text,
-                        modifier = Modifier.fillMaxWidth()
+                    // Title field
+                    OutlinedTextField(
+                        value = viewModel.title,
+                        onValueChange = viewModel::updateTitle,
+                        label = { Text(stringResource(R.string.title)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        keyboardOptions = KeyboardOptions(
+                            capitalization = KeyboardCapitalization.Words,
+                            imeAction = ImeAction.Next
+                        ),
+                        singleLine = true,
+                        isError = viewModel.titleError != null
                     )
-
-                    // Description field
-                    MaintenanceTextField(
-                        value = viewModel.description,
-                        onValueChange = viewModel::updateDescription,
-                        label = "Description",
-                        placeholder = "Describe the equipment",
-                        isError = false,
-                        keyboardType = KeyboardType.Text,
-                        maxLines = 3,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
+                    
+                    viewModel.titleError?.let { error ->
+                        Text(
+                            text = error,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                    
                     // Category field
-                    MaintenanceTextField(
+                    OutlinedTextField(
                         value = viewModel.category,
                         onValueChange = viewModel::updateCategory,
-                        label = "Category",
-                        placeholder = "e.g., Electronics, Machinery",
-                        isError = false,
-                        keyboardType = KeyboardType.Text,
-                        modifier = Modifier.fillMaxWidth()
+                        label = { Text(stringResource(R.string.category)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        keyboardOptions = KeyboardOptions(
+                            capitalization = KeyboardCapitalization.Words,
+                            imeAction = ImeAction.Next
+                        ),
+                        singleLine = true,
+                        isError = viewModel.categoryError != null
                     )
-
-                    // Location field
-                    MaintenanceTextField(
-                        value = viewModel.location,
-                        onValueChange = viewModel::updateLocation,
-                        label = "Location",
-                        placeholder = "Where is it located?",
-                        isError = false,
-                        keyboardType = KeyboardType.Text,
-                        modifier = Modifier.fillMaxWidth()
+                    
+                    viewModel.categoryError?.let { error ->
+                        Text(
+                            text = error,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                    
+                    // Description field
+                    OutlinedTextField(
+                        value = viewModel.description,
+                        onValueChange = viewModel::updateDescription,
+                        label = { Text(stringResource(R.string.description)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        keyboardOptions = KeyboardOptions(
+                            capitalization = KeyboardCapitalization.Sentences,
+                            imeAction = ImeAction.Done
+                        ),
+                        minLines = 3,
+                        maxLines = 5
                     )
-
-                    // Brand/Model field
-                    MaintenanceTextField(
-                        value = viewModel.brandModel,
-                        onValueChange = viewModel::updateBrandModel,
-                        label = "Brand/Model",
-                        placeholder = "e.g., HP Pavilion 15",
-                        isError = false,
-                        keyboardType = KeyboardType.Text,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    // Serial Number field
-                    MaintenanceTextField(
-                        value = viewModel.serialNumber,
-                        onValueChange = viewModel::updateSerialNumber,
-                        label = "Serial Number",
-                        placeholder = "Device serial number",
-                        isError = false,
-                        keyboardType = KeyboardType.Text,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    // Purchase Date field
-                    MaintenanceTextField(
-                        value = viewModel.purchaseDate,
-                        onValueChange = viewModel::updatePurchaseDate,
-                        label = "Purchase Date",
-                        placeholder = "YYYY-MM-DD",
-                        isError = false,
-                        keyboardType = KeyboardType.Text,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    // Warranty Expiry field
-                    MaintenanceTextField(
-                        value = viewModel.warrantyExpiry,
-                        onValueChange = viewModel::updateWarrantyExpiry,
-                        label = "Warranty Expiry",
-                        placeholder = "YYYY-MM-DD",
-                        isError = false,
-                        keyboardType = KeyboardType.Text,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    // Notes field
-                    MaintenanceTextField(
-                        value = viewModel.notes,
-                        onValueChange = viewModel::updateNotes,
-                        label = "Notes",
-                        placeholder = "Additional notes",
-                        isError = false,
-                        keyboardType = KeyboardType.Text,
-                        maxLines = 3,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
+                    
+                    // Loading indicator
+                    if (uiState is EditRecordUiState.Loading) {
+                        Box(
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            LinearProgressIndicator(
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    }
+                    
                     // Save button
-                    MaintenanceButton(
-                        text = "Save Changes",
+                    Button(
                         onClick = { viewModel.saveRecord() },
-                        enabled = uiState !is EditRecordUiState.Loading && 
-                                viewModel.recordName.isNotBlank(),
-                        isLoading = uiState is EditRecordUiState.Loading,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    Spacer(modifier = Modifier.height(32.dp))
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = uiState !is EditRecordUiState.Loading
+                    ) {
+                        if (uiState is EditRecordUiState.Loading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(16.dp),
+                                strokeWidth = 2.dp
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                        }
+                        Text(stringResource(R.string.save_record))
+                    }
                 }
             }
         }

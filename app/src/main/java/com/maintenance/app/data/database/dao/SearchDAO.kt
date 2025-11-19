@@ -19,7 +19,7 @@ interface SearchDAO {
      */
     @Query("""
         SELECT * FROM records 
-        WHERE name LIKE '%' || :query || '%' 
+        WHERE is_active = 1 AND name LIKE '%' || :query || '%' 
         ORDER BY 
             CASE WHEN name LIKE :query || '%' THEN 1 ELSE 2 END,
             name ASC
@@ -32,7 +32,7 @@ interface SearchDAO {
      */
     @Query("""
         SELECT * FROM records 
-        WHERE name LIKE '%' || :query || '%' 
+        WHERE is_active = 1 AND name LIKE '%' || :query || '%' 
         ORDER BY 
             CASE WHEN name LIKE :query || '%' THEN 1 ELSE 2 END,
             name ASC
@@ -86,7 +86,7 @@ interface SearchDAO {
     @Query("""
         SELECT DISTINCT r.* FROM records r
         LEFT JOIN maintenances m ON r.id = m.record_id
-        WHERE 1=1
+        WHERE r.is_active = 1
             AND (:nameQuery IS NULL OR r.name LIKE '%' || :nameQuery || '%')
             AND (:maintenanceQuery IS NULL OR 
                 m.description LIKE '%' || :maintenanceQuery || '%' OR
@@ -237,11 +237,12 @@ interface SearchDAO {
                COALESCE(r.brand_model, '') as subtitle, COALESCE(r.description, '') as description,
                NULL as recordId
         FROM records r
-        WHERE r.name LIKE '%' || :query || '%' 
+        WHERE r.is_active = 1
+           AND (r.name LIKE '%' || :query || '%' 
            OR r.brand_model LIKE '%' || :query || '%'
            OR r.serial_number LIKE '%' || :query || '%'
            OR r.location LIKE '%' || :query || '%'
-           OR r.description LIKE '%' || :query || '%'
+           OR r.description LIKE '%' || :query || '%')
         
         UNION ALL
         
@@ -250,12 +251,13 @@ interface SearchDAO {
                m.record_id as recordId
         FROM maintenances m
         INNER JOIN records r ON m.record_id = r.id
-        WHERE m.description LIKE '%' || :query || '%'
+        WHERE r.is_active = 1
+           AND (m.description LIKE '%' || :query || '%'
            OR m.type LIKE '%' || :query || '%'
            OR m.performed_by LIKE '%' || :query || '%'
            OR m.location LIKE '%' || :query || '%'
            OR m.parts_replaced LIKE '%' || :query || '%'
-           OR m.notes LIKE '%' || :query || '%'
+           OR m.notes LIKE '%' || :query || '%')
         
         ORDER BY type, id
         LIMIT :limit
@@ -267,10 +269,11 @@ interface SearchDAO {
      */
     @Query("""
         SELECT DISTINCT name as suggestion FROM records 
-        WHERE name LIKE :query || '%'
+        WHERE is_active = 1 AND name LIKE :query || '%'
         UNION
-        SELECT DISTINCT type as suggestion FROM maintenances 
-        WHERE type LIKE :query || '%'
+        SELECT DISTINCT type as suggestion FROM maintenances m
+        INNER JOIN records r ON m.record_id = r.id
+        WHERE r.is_active = 1 AND type LIKE :query || '%'
         ORDER BY suggestion ASC
         LIMIT 10
     """)

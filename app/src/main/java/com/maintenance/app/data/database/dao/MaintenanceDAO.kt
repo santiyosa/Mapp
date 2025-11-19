@@ -30,26 +30,30 @@ interface MaintenanceDAO {
     fun getAllMaintenances(): Flow<List<MaintenanceEntity>>
 
     @Query("""
-        SELECT * FROM maintenances 
-        WHERE record_id = :recordId AND (
-            description LIKE :searchQuery OR 
-            type LIKE :searchQuery OR 
-            performed_by LIKE :searchQuery OR 
-            parts_replaced LIKE :searchQuery OR
-            notes LIKE :searchQuery
+        SELECT m.* FROM maintenances m
+        INNER JOIN records r ON m.record_id = r.id
+        WHERE r.id = :recordId AND r.is_active = 1 AND (
+            m.description LIKE :searchQuery OR 
+            m.type LIKE :searchQuery OR 
+            m.performed_by LIKE :searchQuery OR 
+            m.parts_replaced LIKE :searchQuery OR
+            m.notes LIKE :searchQuery
         )
-        ORDER BY maintenance_date DESC
+        ORDER BY m.maintenance_date DESC
     """)
     fun searchMaintenancesForRecord(recordId: Long, searchQuery: String): Flow<List<MaintenanceEntity>>
 
     @Query("""
-        SELECT * FROM maintenances 
-        WHERE description LIKE :searchQuery OR 
-        type LIKE :searchQuery OR 
-        performed_by LIKE :searchQuery OR 
-        parts_replaced LIKE :searchQuery OR
-        notes LIKE :searchQuery
-        ORDER BY maintenance_date DESC
+        SELECT m.* FROM maintenances m
+        INNER JOIN records r ON m.record_id = r.id
+        WHERE r.is_active = 1 AND (
+            m.description LIKE :searchQuery OR 
+            m.type LIKE :searchQuery OR 
+            m.performed_by LIKE :searchQuery OR 
+            m.parts_replaced LIKE :searchQuery OR
+            m.notes LIKE :searchQuery
+        )
+        ORDER BY m.maintenance_date DESC
     """)
     fun searchAllMaintenances(searchQuery: String): Flow<List<MaintenanceEntity>>
 
