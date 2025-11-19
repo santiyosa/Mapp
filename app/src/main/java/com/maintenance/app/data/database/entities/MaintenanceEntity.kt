@@ -50,7 +50,7 @@ data class MaintenanceEntity(
     val cost: BigDecimal? = null,
 
     @ColumnInfo(name = "currency")
-    val currency: String = "USD",
+    val currency: String = "COP",
 
     @ColumnInfo(name = "performed_by")
     val performedBy: String? = null,

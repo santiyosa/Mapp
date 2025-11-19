@@ -99,4 +99,10 @@ interface RecordDAO {
 
     @Query("SELECT * FROM records WHERE warranty_expiry_date BETWEEN :startDate AND :endDate")
     fun getRecordsWithExpiringWarranty(startDate: LocalDateTime, endDate: LocalDateTime): Flow<List<RecordEntity>>
+
+    @Query("SELECT * FROM records WHERE is_active = 0 ORDER BY updated_date DESC")
+    fun getDeletedRecords(): Flow<List<RecordEntity>>
+
+    @Query("UPDATE records SET is_active = 1 WHERE id = :recordId")
+    suspend fun restoreRecord(recordId: Long)
 }

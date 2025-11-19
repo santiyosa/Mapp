@@ -22,6 +22,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -49,8 +50,10 @@ fun RecordDetailScreen(
     val isWhatsAppAvailable by viewModel.isWhatsAppAvailable.collectAsState()
     val shareLoading by viewModel.shareLoading.collectAsState()
     val shareError by viewModel.shareError.collectAsState()
+    val context = LocalContext.current
     
     var selectedMaintenanceId by remember { mutableStateOf(initialMaintenanceId) }
+    var showMaintenanceSelectionDialog by remember { mutableStateOf(false) }
     
     LaunchedEffect(recordId) {
         viewModel.loadRecord(recordId)
@@ -71,6 +74,41 @@ fun RecordDetailScreen(
             onDismiss = { selectedMaintenanceId = null }
         )
     }
+
+    // Show maintenance selection dialog for sharing
+    if (showMaintenanceSelectionDialog && uiState is RecordDetailUiState.Success) {
+        val maintenances = (uiState as RecordDetailUiState.Success).maintenances
+        MaintenanceSelectionDialog(
+            maintenances = maintenances,
+            onConfirm = { selectedMaintenances ->
+                showMaintenanceSelectionDialog = false
+                
+                // Build share message with selected maintenances
+                val record = (uiState as RecordDetailUiState.Success).record
+                val messageBuilder = StringBuilder()
+                messageBuilder.append("Registro: ${record.name}\n")
+                messageBuilder.append("Descripción: ${record.description ?: "Sin descripción"}\n")
+                messageBuilder.append("Categoría: ${record.category ?: "Sin categoría"}\n")
+                
+                if (selectedMaintenances.isNotEmpty()) {
+                    messageBuilder.append("\n--- Mantenimientos Seleccionados ---\n\n")
+                    selectedMaintenances.forEach { maintenance ->
+                        messageBuilder.append(buildMaintenanceDetailMessage(maintenance))
+                        messageBuilder.append("\n")
+                    }
+                }
+                
+                val message = messageBuilder.toString()
+                val intent = android.content.Intent().apply {
+                    action = android.content.Intent.ACTION_SEND
+                    putExtra(android.content.Intent.EXTRA_TEXT, message)
+                    type = "text/plain"
+                }
+                context.startActivity(android.content.Intent.createChooser(intent, "Compartir Registro"))
+            },
+            onDismiss = { showMaintenanceSelectionDialog = false }
+        )
+    }
     
     MainScaffold(
         title = stringResource(R.string.record_details),
@@ -80,41 +118,10 @@ fun RecordDetailScreen(
         recordId = recordId,
         onBackClick = { navController.navigateUp() },
         actions = {
-            // Share buttons
-            if (uiState is RecordDetailUiState.Success) {
-                if (isWhatsAppAvailable) {
-                    IconButton(
-                        onClick = { viewModel.shareRecordViaWhatsApp() },
-                        enabled = !shareLoading
-                    ) {
-                        if (shareLoading) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(24.dp),
-                                strokeWidth = 2.dp
-                            )
-                        } else {
-                            Icon(
-                                imageVector = Icons.Default.Share,
-                                contentDescription = "Compartir en WhatsApp"
-                            )
-                        }
-                    }
-                }
-                
-                IconButton(
-                    onClick = { viewModel.shareRecordGeneric() },
-                    enabled = !shareLoading
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Share,
-                        contentDescription = "Compartir"
-                    )
-                }
-            }
-            
-            // Edit button
+            // Edit button - this works fine
             IconButton(
                 onClick = {
+                    android.util.Log.d("RecordDetailScreen", "Edit button clicked")
                     navController.navigate(
                         Screen.EditRecord.createRoute(recordId)
                     )
@@ -155,17 +162,53 @@ fun RecordDetailScreen(
                 )
             }
             is RecordDetailUiState.Success -> {
-                LazyColumn(
+                Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(paddingValues),
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                        .padding(paddingValues)
                 ) {
-                    // Record information
-                    item {
-                        RecordInfoCard(record = currentState.record)
+                    // Buttons row
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        // Schedule maintenance button (for future use)
+                        Button(
+                            onClick = { 
+                                // TODO: Implement scheduling functionality
+                                // For now, this button is placeholder for future maintenance scheduling
+                            },
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text("Programar")
+                        }
+                        
+                        // Share with maintenances button
+                        Button(
+                            onClick = { 
+                                if (currentState.maintenances.isNotEmpty()) {
+                                    showMaintenanceSelectionDialog = true
+                                }
+                            },
+                            modifier = Modifier.weight(1f),
+                            enabled = currentState.maintenances.isNotEmpty()
+                        ) {
+                            Text("Compartir +")
+                        }
                     }
+                    
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        contentPadding = PaddingValues(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        // Record information
+                        item {
+                            RecordInfoCard(record = currentState.record)
+                        }
                     
                     // Maintenance history section
                     item {
@@ -198,6 +241,7 @@ fun RecordDetailScreen(
                             )
                         }
                     }
+                }
                 }
             }
         }
@@ -364,7 +408,7 @@ private fun MaintenanceCard(
                     maintenance.cost?.let { cost ->
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "${maintenance.currency.takeIf { it.isNotBlank() } ?: "USD"} $cost",
+                            text = "${maintenance.currency.takeIf { it.isNotBlank() } ?: "COP"} $cost",
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.primary
                         )
@@ -461,4 +505,91 @@ fun ImageThumbnails(
             }
         }
     }
+}
+
+/**
+ * Builds a detailed message for a maintenance record to be shared.
+ */
+private fun buildMaintenanceDetailMessage(maintenance: com.maintenance.app.domain.model.Maintenance): String {
+    val messageBuilder = StringBuilder()
+    
+    // Type and date
+    messageBuilder.append("📋 ${maintenance.type}\n")
+    messageBuilder.append("📅 Fecha: ${maintenance.maintenanceDate.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))}\n")
+    
+    // Status and Priority
+    messageBuilder.append("✓ Estado: ${maintenance.status.displayName}\n")
+    messageBuilder.append("⚡ Prioridad: ${maintenance.priority.displayName}\n")
+    
+    // Description
+    if (maintenance.description.isNotBlank()) {
+        messageBuilder.append("📝 Descripción: ${maintenance.description}\n")
+    }
+    
+    // Performed by
+    maintenance.performedBy?.let { performedBy ->
+        if (performedBy.isNotBlank()) {
+            messageBuilder.append("👤 Realizado por: $performedBy\n")
+        }
+    }
+    
+    // Location
+    maintenance.location?.let { location ->
+        if (location.isNotBlank()) {
+            messageBuilder.append("📍 Ubicación: $location\n")
+        }
+    }
+    
+    // Cost
+    maintenance.cost?.let { cost ->
+        val currencyCode = maintenance.currency.takeIf { it.isNotBlank() } ?: "COP"
+        messageBuilder.append("💰 Costo: $currencyCode ${cost.setScale(2, java.math.RoundingMode.HALF_UP)}\n")
+    }
+    
+    // Duration
+    maintenance.durationMinutes?.let { duration ->
+        if (duration > 0) {
+            val hours = duration / 60
+            val minutes = duration % 60
+            val durationStr = when {
+                hours > 0 && minutes > 0 -> "$hours h $minutes min"
+                hours > 0 -> "$hours h"
+                else -> "$minutes min"
+            }
+            messageBuilder.append("⏱️ Duración: $durationStr\n")
+        }
+    }
+    
+    // Parts replaced
+    maintenance.partsReplaced?.let { parts ->
+        if (parts.isNotBlank()) {
+            messageBuilder.append("🔧 Partes reemplazadas: $parts\n")
+        }
+    }
+    
+    // Next maintenance due
+    maintenance.nextMaintenanceDue?.let { nextMaintenance ->
+        messageBuilder.append("🔁 Próximo mantenimiento: ${nextMaintenance.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"))}\n")
+    }
+    
+    // Notes
+    maintenance.notes?.let { notes ->
+        if (notes.isNotBlank()) {
+            messageBuilder.append("📌 Notas: $notes\n")
+        }
+    }
+    
+    // Recurrence info
+    if (maintenance.isRecurring) {
+        maintenance.recurrenceIntervalDays?.let { days ->
+            messageBuilder.append("🔄 Recurrencia: Cada $days días\n")
+        }
+    }
+    
+    // Images count
+    if (maintenance.imagesPaths.isNotEmpty()) {
+        messageBuilder.append("📸 Imágenes: ${maintenance.imagesPaths.size}\n")
+    }
+    
+    return messageBuilder.toString()
 }

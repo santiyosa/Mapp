@@ -15,6 +15,7 @@ import com.maintenance.app.presentation.ui.screens.edit.EditRecordScreenSimple
 import com.maintenance.app.presentation.ui.screens.maintenance.create.CreateMaintenanceScreen
 import com.maintenance.app.presentation.ui.screens.maintenance.edit.EditMaintenanceScreen
 import com.maintenance.app.presentation.ui.screens.backup.BackupScreen
+import com.maintenance.app.presentation.ui.screens.trash.TrashScreen
 
 /**
  * Main navigation host for the app.
@@ -56,6 +57,10 @@ fun MainNavHost(
                     navController.popBackStack()
                 }
             )
+        }
+        
+        composable("trash") {
+            TrashScreen(navController = navController)
         }
         
         // Record screens

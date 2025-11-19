@@ -281,6 +281,18 @@ fun SettingsScreen(
                 Text("Manage Backups")
             }
 
+            // Trash Button
+            OutlinedButton(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp, vertical = 8.dp),
+                onClick = {
+                    navController?.navigate("trash")
+                }
+            ) {
+                Text("Papelera (Registros Eliminados)")
+            }
+
             // Reset and Clear Buttons
             Row(
                 modifier = Modifier

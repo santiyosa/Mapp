@@ -110,7 +110,7 @@ abstract class MaintenanceDatabase : RoomDatabase() {
                         description TEXT NOT NULL DEFAULT '',
                         type TEXT NOT NULL DEFAULT '',
                         cost TEXT NOT NULL DEFAULT '',
-                        currency TEXT NOT NULL DEFAULT 'USD',
+                        currency TEXT NOT NULL DEFAULT 'COP',
                         performed_by TEXT NOT NULL DEFAULT '',
                         location TEXT NOT NULL DEFAULT '',
                         duration_minutes TEXT NOT NULL DEFAULT '',

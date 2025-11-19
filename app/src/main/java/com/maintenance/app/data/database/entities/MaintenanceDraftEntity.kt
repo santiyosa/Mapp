@@ -43,7 +43,7 @@ data class MaintenanceDraftEntity(
     val cost: String = "",
     
     @ColumnInfo(name = "currency")
-    val currency: String = "USD",
+    val currency: String = "COP",
     
     @ColumnInfo(name = "performed_by")
     val performedBy: String = "",

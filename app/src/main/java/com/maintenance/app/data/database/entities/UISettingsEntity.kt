@@ -24,7 +24,7 @@ data class UISettingsEntity(
     val languageCode: String = "en", // ISO 639-1 language codes
 
     @ColumnInfo(name = "currency_code")
-    val currencyCode: String = "USD", // ISO 4217 currency codes
+    val currencyCode: String = "COP", // ISO 4217 currency codes
 
     @ColumnInfo(name = "date_format")
     val dateFormat: String = "MM/dd/yyyy", // Date display format

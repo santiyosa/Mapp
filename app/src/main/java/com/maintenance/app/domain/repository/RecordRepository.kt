@@ -101,4 +101,14 @@ interface RecordRepository {
      * Gets records with warranty expiring within a date range.
      */
     fun getRecordsWithExpiringWarranty(startDate: LocalDateTime, endDate: LocalDateTime): Flow<List<Record>>
+
+    /**
+     * Gets all deleted (inactive) records.
+     */
+    fun getDeletedRecords(): Flow<List<Record>>
+
+    /**
+     * Restores a deleted record (marks as active).
+     */
+    suspend fun restoreRecord(recordId: Long): Result<Unit>
 }

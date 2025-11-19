@@ -143,7 +143,7 @@ class EditMaintenanceViewModel @Inject constructor(
         description = maintenance.description
         type = maintenance.type
         cost = maintenance.cost?.toString() ?: ""
-        currency = maintenance.currency.takeIf { it.isNotBlank() } ?: "USD"
+        currency = maintenance.currency.takeIf { it.isNotBlank() } ?: "COP"
         performedBy = maintenance.performedBy ?: ""
         location = maintenance.location ?: ""
         durationMinutes = maintenance.durationMinutes?.toString() ?: ""

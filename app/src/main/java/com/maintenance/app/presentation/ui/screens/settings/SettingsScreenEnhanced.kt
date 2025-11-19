@@ -198,6 +198,20 @@ fun SettingsScreenEnhanced(
                 }
             }
 
+            // TRASH/RECYCLE BIN SECTION
+            PersonalizationDivider("Data Management")
+
+            OutlinedButton(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                onClick = {
+                    navController?.navigate("trash")
+                }
+            ) {
+                Text("Papelera (Registros Eliminados)")
+            }
+
             // DANGER ZONE SECTION
             PersonalizationDivider("Danger Zone")
 

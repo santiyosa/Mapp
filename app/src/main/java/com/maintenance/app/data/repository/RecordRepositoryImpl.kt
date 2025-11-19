@@ -138,4 +138,16 @@ class RecordRepositoryImpl @Inject constructor(
             entities.toDomain()
         }
     }
+
+    override fun getDeletedRecords(): Flow<List<Record>> {
+        return recordDAO.getDeletedRecords().map { entities ->
+            entities.toDomain()
+        }
+    }
+
+    override suspend fun restoreRecord(recordId: Long): Result<Unit> {
+        return Result.safeCall {
+            recordDAO.restoreRecord(recordId)
+        }
+    }
 }

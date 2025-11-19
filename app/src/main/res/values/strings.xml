@@ -109,4 +109,12 @@
     <string name="save_changes">Guardar cambios</string>
     <string name="confirm_delete">Confirmar eliminación</string>
     <string name="delete_record_confirmation">¿Estás seguro de que quieres eliminar este registro? Esta acción no se puede deshacer.</string>
+    
+    <!-- Trash/Recycle Bin -->
+    <string name="restore_record">Restaurar</string>
+    <string name="confirm_action">Confirmar</string>
+    <string name="trash_empty">No hay registros eliminados</string>
+    <string name="restore_record_confirmation">¿Deseas restaurar este registro?</string>
+    <string name="permanently_delete_confirmation">¿Deseas eliminar permanentemente este registro? Esta acción no se puede deshacer.</string>
+    <string name="permanently_delete">Borrar permanentemente</string>
 </resources>
