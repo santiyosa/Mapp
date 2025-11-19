@@ -111,8 +111,8 @@ fun CreateMaintenanceScreen(
                     MaintenanceTextField(
                         value = viewModel.type,
                         onValueChange = viewModel::updateType,
-                        label = "Tipo de Mantenimiento*",
-                        placeholder = "Ej: Preventivo, Correctivo",
+                        label = stringResource(R.string.maintenance_type_label),
+                        placeholder = stringResource(R.string.maintenance_type_placeholder),
                         isError = false,
                         keyboardType = KeyboardType.Text,
                         modifier = Modifier.fillMaxWidth()
@@ -122,8 +122,8 @@ fun CreateMaintenanceScreen(
                     MaintenanceTextField(
                         value = viewModel.description,
                         onValueChange = viewModel::updateDescription,
-                        label = "Descripción*",
-                        placeholder = "Describe el mantenimiento",
+                        label = stringResource(R.string.maintenance_description_label),
+                        placeholder = stringResource(R.string.maintenance_description_placeholder),
                         isError = false,
                         keyboardType = KeyboardType.Text,
                         maxLines = 3,
@@ -134,7 +134,7 @@ fun CreateMaintenanceScreen(
                     OutlinedTextField(
                         value = viewModel.maintenanceDate?.toString() ?: "",
                         onValueChange = { },
-                        label = { Text("Fecha de Mantenimiento*") },
+                        label = { Text(stringResource(R.string.maintenance_date_label)) },
                         readOnly = true,
                         enabled = false,
                         modifier = Modifier.fillMaxWidth()
@@ -144,8 +144,8 @@ fun CreateMaintenanceScreen(
                     MaintenanceTextField(
                         value = viewModel.cost,
                         onValueChange = viewModel::updateCost,
-                        label = "Costo",
-                        placeholder = "0.00",
+                        label = stringResource(R.string.maintenance_cost_label),
+                        placeholder = stringResource(R.string.maintenance_cost_placeholder),
                         isError = false,
                         keyboardType = KeyboardType.Decimal,
                         modifier = Modifier.fillMaxWidth()
@@ -155,8 +155,8 @@ fun CreateMaintenanceScreen(
                     MaintenanceTextField(
                         value = viewModel.performedBy,
                         onValueChange = viewModel::updatePerformedBy,
-                        label = "Realizado por",
-                        placeholder = "Nombre del técnico",
+                        label = stringResource(R.string.maintenance_performed_by_label),
+                        placeholder = stringResource(R.string.maintenance_performed_by_placeholder),
                         isError = false,
                         keyboardType = KeyboardType.Text,
                         modifier = Modifier.fillMaxWidth()
@@ -166,8 +166,8 @@ fun CreateMaintenanceScreen(
                     MaintenanceTextField(
                         value = viewModel.location,
                         onValueChange = viewModel::updateLocation,
-                        label = "Ubicación",
-                        placeholder = "Donde se realizó",
+                        label = stringResource(R.string.maintenance_location_label),
+                        placeholder = stringResource(R.string.maintenance_location_placeholder),
                         isError = false,
                         keyboardType = KeyboardType.Text,
                         modifier = Modifier.fillMaxWidth()
@@ -177,8 +177,8 @@ fun CreateMaintenanceScreen(
                     MaintenanceTextField(
                         value = viewModel.partsReplaced,
                         onValueChange = viewModel::updatePartsReplaced,
-                        label = "Piezas Reemplazadas",
-                        placeholder = "Lista de componentes",
+                        label = stringResource(R.string.maintenance_parts_replaced_label),
+                        placeholder = stringResource(R.string.maintenance_parts_replaced_placeholder),
                         isError = false,
                         keyboardType = KeyboardType.Text,
                         maxLines = 2,
@@ -189,8 +189,8 @@ fun CreateMaintenanceScreen(
                     MaintenanceTextField(
                         value = viewModel.notes,
                         onValueChange = viewModel::updateNotes,
-                        label = "Notas",
-                        placeholder = "Notas adicionales",
+                        label = stringResource(R.string.maintenance_notes_label),
+                        placeholder = stringResource(R.string.maintenance_notes_placeholder),
                         isError = false,
                         keyboardType = KeyboardType.Text,
                         maxLines = 3,

@@ -212,4 +212,21 @@
     <string name="trash_title">Trash (Deleted Records)</string>
     <string name="clear_all_data">Clear All Data</string>
     <string name="reset_settings_confirmation">Reset Settings?</string>
+    
+    <!-- Create Maintenance Form Strings -->
+    <string name="maintenance_type_label">Maintenance Type*</string>
+    <string name="maintenance_type_placeholder">Ex: Preventive, Corrective</string>
+    <string name="maintenance_description_label">Description*</string>
+    <string name="maintenance_description_placeholder">Describe the maintenance</string>
+    <string name="maintenance_date_label">Maintenance Date*</string>
+    <string name="maintenance_cost_label">Cost</string>
+    <string name="maintenance_cost_placeholder">0.00</string>
+    <string name="maintenance_performed_by_label">Performed By</string>
+    <string name="maintenance_performed_by_placeholder">Technician name</string>
+    <string name="maintenance_location_label">Location</string>
+    <string name="maintenance_location_placeholder">Where it was done</string>
+    <string name="maintenance_parts_replaced_label">Parts Replaced</string>
+    <string name="maintenance_parts_replaced_placeholder">List of components</string>
+    <string name="maintenance_notes_label">Notes</string>
+    <string name="maintenance_notes_placeholder">Additional notes</string>
 </resources>

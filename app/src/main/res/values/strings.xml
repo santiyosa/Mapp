@@ -212,4 +212,21 @@
     <string name="trash_title">Papelera (Registros Eliminados)</string>
     <string name="clear_all_data">Borrar todos los datos</string>
     <string name="reset_settings_confirmation">¿Restablecer configuración?</string>
+    
+    <!-- Create Maintenance Form Strings -->
+    <string name="maintenance_type_label">Tipo de Mantenimiento*</string>
+    <string name="maintenance_type_placeholder">Ej: Preventivo, Correctivo</string>
+    <string name="maintenance_description_label">Descripción*</string>
+    <string name="maintenance_description_placeholder">Describe el mantenimiento</string>
+    <string name="maintenance_date_label">Fecha de Mantenimiento*</string>
+    <string name="maintenance_cost_label">Costo</string>
+    <string name="maintenance_cost_placeholder">0.00</string>
+    <string name="maintenance_performed_by_label">Realizado por</string>
+    <string name="maintenance_performed_by_placeholder">Nombre del técnico</string>
+    <string name="maintenance_location_label">Ubicación</string>
+    <string name="maintenance_location_placeholder">Donde se realizó</string>
+    <string name="maintenance_parts_replaced_label">Piezas Reemplazadas</string>
+    <string name="maintenance_parts_replaced_placeholder">Lista de componentes</string>
+    <string name="maintenance_notes_label">Notas</string>
+    <string name="maintenance_notes_placeholder">Notas adicionales</string>
 </resources>

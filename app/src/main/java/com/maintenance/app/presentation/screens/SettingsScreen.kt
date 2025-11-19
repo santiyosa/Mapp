@@ -1,5 +1,6 @@
 package com.maintenance.app.presentation.screens
 
+import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -30,6 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -39,6 +41,7 @@ import com.maintenance.app.domain.model.AppLanguage
 import com.maintenance.app.domain.model.ThemeMode
 import com.maintenance.app.presentation.navigation.Screen
 import com.maintenance.app.presentation.settings.SettingsViewModel
+import com.maintenance.app.utils.LocaleManager
 
 /**
  * Settings screen allowing users to configure app preferences.
@@ -50,6 +53,7 @@ fun SettingsScreen(
     navController: NavHostController? = null,
     onNavigateBack: () -> Unit = {}
 ) {
+    val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
     var showThemeMenu by remember { mutableStateOf(false) }
     var showLanguageMenu by remember { mutableStateOf(false) }
@@ -184,8 +188,21 @@ fun SettingsScreen(
                     DropdownMenuItem(
                         text = { Text(language.name) },
                         onClick = {
+                            // Update app language preference
+                            val languageCode = when (language) {
+                                AppLanguage.SPANISH -> LocaleManager.SPANISH
+                                AppLanguage.ENGLISH -> LocaleManager.ENGLISH
+                                AppLanguage.PORTUGUESE -> "pt"  // Portuguese
+                            }
+                            // Apply language change
+                            LocaleManager.setLanguage(context, languageCode)
+                            // Update view model
                             viewModel.updateLanguage(language)
                             showLanguageMenu = false
+                            // Navigate to Home to refresh all UI with new language
+                            navController?.navigate(Screen.Home.route) {
+                                popUpTo(Screen.Home.route) { inclusive = true }
+                            }
                         }
                     )
                 }
