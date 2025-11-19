@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.maintenance.app.domain.model.Maintenance
 import com.maintenance.app.domain.usecases.maintenances.GetMaintenanceByIdUseCase
 import com.maintenance.app.domain.usecases.maintenances.UpdateMaintenanceUseCase
+import com.maintenance.app.domain.usecases.maintenances.DeleteMaintenanceUseCase
 import com.maintenance.app.domain.usecases.images.ImageCaptureUseCase
 import com.maintenance.app.domain.usecases.images.DeleteImageUseCase
 import com.maintenance.app.domain.usecases.images.CreateTempImageUseCase
@@ -37,6 +38,7 @@ sealed class EditMaintenanceUiState {
 class EditMaintenanceViewModel @Inject constructor(
     private val getMaintenanceByIdUseCase: GetMaintenanceByIdUseCase,
     private val updateMaintenanceUseCase: UpdateMaintenanceUseCase,
+    private val deleteMaintenanceUseCase: DeleteMaintenanceUseCase,
     private val imageCaptureUseCase: ImageCaptureUseCase,
     private val deleteImageUseCase: DeleteImageUseCase,
     private val createTempImageUseCase: CreateTempImageUseCase,
@@ -388,7 +390,9 @@ class EditMaintenanceViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = EditMaintenanceUiState.Loading
             try {
-                // TODO: Implement delete maintenance logic
+                deleteMaintenanceUseCase(
+                    com.maintenance.app.domain.usecases.maintenances.DeleteMaintenanceUseCase.Params(maintenanceId)
+                )
                 _uiState.value = EditMaintenanceUiState.Success
             } catch (e: Exception) {
                 _uiState.value = EditMaintenanceUiState.Error(

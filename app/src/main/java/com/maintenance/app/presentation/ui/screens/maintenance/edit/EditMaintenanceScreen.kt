@@ -8,7 +8,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -42,6 +42,7 @@ fun EditMaintenanceScreen(
     val shareLoading by viewModel.shareLoading.collectAsState()
     val shareError by viewModel.shareError.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
+    var showDeleteConfirmation by remember { mutableStateOf(false) }
 
     LaunchedEffect(uiState) {
         val currentState = uiState
@@ -66,6 +67,32 @@ fun EditMaintenanceScreen(
         recordName = "Maintenance"
     }
 
+    // Show delete confirmation dialog
+    if (showDeleteConfirmation) {
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirmation = false },
+            title = { Text("Eliminar Mantenimiento") },
+            text = { Text("¿Estás seguro de que deseas eliminar este mantenimiento? Esta acción no se puede deshacer.") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showDeleteConfirmation = false
+                        viewModel.deleteMaintenance()
+                    }
+                ) {
+                    Text("Eliminar")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showDeleteConfirmation = false }
+                ) {
+                    Text("Cancelar")
+                }
+            }
+        )
+    }
+    
     MainScaffold(
         title = "Editar Mantenimiento",
         navController = navController,
@@ -73,33 +100,15 @@ fun EditMaintenanceScreen(
         showBackButton = true,
         onBackClick = { navController.navigateUp() },
         actions = {
-            // Share buttons
-            if (isWhatsAppAvailable) {
-                IconButton(
-                    onClick = { viewModel.shareMaintenanceViaWhatsApp(recordName) },
-                    enabled = !shareLoading
-                ) {
-                    if (shareLoading) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(24.dp),
-                            strokeWidth = 2.dp
-                        )
-                    } else {
-                        Icon(
-                            imageVector = Icons.Default.Share,
-                            contentDescription = "Compartir en WhatsApp"
-                        )
-                    }
-                }
-            }
-            
+            // Delete button
             IconButton(
-                onClick = { viewModel.shareMaintenanceGeneric(recordName) },
-                enabled = !shareLoading
+                onClick = { showDeleteConfirmation = true },
+                enabled = uiState !is EditMaintenanceUiState.Loading
             ) {
                 Icon(
-                    imageVector = Icons.Default.Share,
-                    contentDescription = "Compartir"
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Eliminar mantenimiento",
+                    tint = MaterialTheme.colorScheme.error
                 )
             }
             
