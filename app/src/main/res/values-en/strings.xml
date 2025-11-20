@@ -229,4 +229,9 @@
     <string name="maintenance_parts_replaced_placeholder">List of components</string>
     <string name="maintenance_notes_label">Notes</string>
     <string name="maintenance_notes_placeholder">Additional notes</string>
+
+    <!-- Validation messages -->
+    <string name="error_description_required">Description is required</string>
+    <string name="error_type_required">Maintenance type is required</string>
+    <string name="error_generic">Error creating maintenance</string>
 </resources>

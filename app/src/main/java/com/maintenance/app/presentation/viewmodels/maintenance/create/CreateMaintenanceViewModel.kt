@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import android.net.Uri
+import com.maintenance.app.R
 import com.maintenance.app.domain.model.Maintenance
 import com.maintenance.app.domain.usecases.maintenances.CreateMaintenanceUseCase
 import com.maintenance.app.domain.usecases.validation.ValidateMaintenanceDataUseCase
@@ -16,9 +17,10 @@ import com.maintenance.app.domain.usecases.drafts.SaveMaintenanceDraftUseCase
 import com.maintenance.app.domain.usecases.drafts.LoadMaintenanceDraftUseCase
 import com.maintenance.app.domain.usecases.drafts.DeleteMaintenanceDraftUseCase
 import com.maintenance.app.domain.model.MaintenanceDraft
+import com.maintenance.app.utils.ResourceProvider
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -34,6 +36,7 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class CreateMaintenanceViewModel @Inject constructor(
+    private val resourceProvider: ResourceProvider,
     private val createMaintenanceUseCase: CreateMaintenanceUseCase,
     private val validateMaintenanceUseCase: ValidateMaintenanceDataUseCase,
     private val imageCaptureUseCase: ImageCaptureUseCase,
@@ -346,12 +349,16 @@ class CreateMaintenanceViewModel @Inject constructor(
             try {
                 // Basic validation
                 if (description.trim().isBlank()) {
-                    _uiState.value = CreateMaintenanceUiState.Error("La descripción es requerida")
+                    _uiState.value = CreateMaintenanceUiState.Error(
+                        resourceProvider.getString(R.string.error_description_required)
+                    )
                     return@launch
                 }
 
                 if (type.trim().isBlank()) {
-                    _uiState.value = CreateMaintenanceUiState.Error("El tipo de mantenimiento es requerido")
+                    _uiState.value = CreateMaintenanceUiState.Error(
+                        resourceProvider.getString(R.string.error_type_required)
+                    )
                     return@launch
                 }
 
@@ -381,12 +388,12 @@ class CreateMaintenanceViewModel @Inject constructor(
                     _uiState.value = CreateMaintenanceUiState.Success
                 } else {
                     _uiState.value = CreateMaintenanceUiState.Error(
-                        createResult.exceptionOrNull()?.message ?: "Failed to save maintenance"
+                        createResult.exceptionOrNull()?.message ?: resourceProvider.getString(R.string.error_generic)
                     )
                 }
             } catch (e: Exception) {
                 _uiState.value = CreateMaintenanceUiState.Error(
-                    e.message ?: "Error al crear el mantenimiento"
+                    e.message ?: resourceProvider.getString(R.string.error_generic)
                 )
             }
         }
@@ -506,12 +513,19 @@ class CreateMaintenanceViewModel @Inject constructor(
     }
     
     /**
-     * Manually save draft (e.g., when user navigates away).
+     * Save draft manually.
      */
     fun saveDraft() {
         viewModelScope.launch {
             saveDraftIfNeeded()
         }
+    }
+
+    /**
+     * Reset UI state back to Idle.
+     */
+    fun resetUiState() {
+        _uiState.value = CreateMaintenanceUiState.Idle
     }
     
     override fun onCleared() {
