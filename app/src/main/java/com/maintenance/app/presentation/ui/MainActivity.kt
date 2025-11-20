@@ -12,6 +12,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import com.maintenance.app.presentation.navigation.MainNavHost
 import com.maintenance.app.presentation.theme.MaintenanceAppTheme
+import com.maintenance.app.presentation.theme.ThemeProvider
 import dagger.hilt.android.AndroidEntryPoint
 
 /**
@@ -24,7 +25,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            MaintenanceAppTheme {
+            ThemeProvider {
                 Surface(
                     modifier = Modifier,
                     color = MaterialTheme.colorScheme.background
@@ -40,7 +41,7 @@ class MainActivity : ComponentActivity() {
 @Preview(showBackground = true)
 @Composable
 fun MainActivityPreview() {
-    MaintenanceAppTheme {
+    ThemeProvider {
         val navController = rememberNavController()
         MainNavHost(navController = navController)
     }

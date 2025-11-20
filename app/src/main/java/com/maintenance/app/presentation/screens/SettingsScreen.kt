@@ -153,6 +153,10 @@ fun SettingsScreen(
                         onClick = {
                             viewModel.updateTheme(theme)
                             showThemeMenu = false
+                            // Navigate to Home to refresh all UI with new theme
+                            navController?.navigate(Screen.Home.route) {
+                                popUpTo(Screen.Home.route) { inclusive = true }
+                            }
                         }
                     )
                 }
