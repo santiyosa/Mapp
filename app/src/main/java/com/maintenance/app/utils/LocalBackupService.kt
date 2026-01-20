@@ -19,9 +19,13 @@ class LocalBackupService(private val context: Context) {
      * Get the backup directory, creating it if it doesn't exist.
      */
     fun getBackupDirectory(): File {
-        return File(context.getExternalFilesDir(null), BACKUP_DIR).apply {
+        val externalFilesDir = context.getExternalFilesDir(null)
+            ?: throw Exception("External files directory not available")
+        return File(externalFilesDir, BACKUP_DIR).apply {
             if (!exists()) {
-                mkdirs()
+                if (!mkdirs()) {
+                    throw Exception("Failed to create backup directory: $absolutePath")
+                }
             }
         }
     }
@@ -32,6 +36,10 @@ class LocalBackupService(private val context: Context) {
      */
     fun saveBackupFile(fileName: String, data: ByteArray): String {
         val backupDir = getBackupDirectory()
+        // Ensure directory exists
+        if (!backupDir.exists()) {
+            backupDir.mkdirs()
+        }
         val backupFile = File(backupDir, fileName)
         backupFile.writeBytes(data)
         return backupFile.absolutePath
@@ -57,7 +65,7 @@ class LocalBackupService(private val context: Context) {
     fun listBackupFiles(): List<File> {
         val backupDir = getBackupDirectory()
         return backupDir.listFiles { file ->
-            file.isFile && file.extension == "zip"
+            file.isFile && (file.extension == "zip" || file.extension == "backup")
         }?.sortedByDescending { it.lastModified() } ?: emptyList()
     }
 

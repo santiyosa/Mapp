@@ -1,5 +1,7 @@
 package com.maintenance.app.presentation.ui.screens.backup
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,8 +16,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FileDownload
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.UploadFile
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -61,8 +66,15 @@ fun BackupScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var showCreateDialog by remember { mutableStateOf(false) }
-    var backupName by remember { mutableStateOf("") }
-    var enableEncryption by remember { mutableStateOf(true) }
+    
+    // File picker launcher for selecting backup files
+    val filePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        if (uri != null) {
+            viewModel.restoreBackupFromUri(uri)
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -144,7 +156,7 @@ fun BackupScreen(
                         Card {
                             Column(modifier = Modifier.padding(16.dp)) {
                                 Text(
-                                    "Storage Information",
+                                    stringResource(R.string.storage_information),
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold
                                 )
@@ -156,7 +168,7 @@ fun BackupScreen(
                                 ) {
                                     Column {
                                         Text(
-                                            "Available Storage",
+                                            stringResource(R.string.available_storage),
                                             style = MaterialTheme.typography.labelSmall
                                         )
                                         Text(
@@ -166,7 +178,7 @@ fun BackupScreen(
                                     }
                                     Column {
                                         Text(
-                                            "Database Size",
+                                            stringResource(R.string.database_size),
                                             style = MaterialTheme.typography.labelSmall
                                         )
                                         Text(
@@ -184,7 +196,7 @@ fun BackupScreen(
                         Card {
                             Column(modifier = Modifier.padding(16.dp)) {
                                 Text(
-                                    "Create Backup",
+                                    stringResource(R.string.create_backup_section),
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold
                                 )
@@ -203,6 +215,24 @@ fun BackupScreen(
                                     }
                                     Text(stringResource(R.string.create_backup_now))
                                 }
+                                
+                                Spacer(modifier = Modifier.height(8.dp))
+                                
+                                Button(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    onClick = { filePickerLauncher.launch("*/*") },
+                                    enabled = !uiState.isLoading,
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = MaterialTheme.colorScheme.secondary
+                                    )
+                                ) {
+                                    Icon(
+                                        Icons.Default.UploadFile,
+                                        contentDescription = null,
+                                        modifier = Modifier.padding(end = 8.dp)
+                                    )
+                                    Text("Restaurar desde archivo")
+                                }
                             }
                         }
                     }
@@ -212,7 +242,7 @@ fun BackupScreen(
                         Card {
                             Column(modifier = Modifier.padding(16.dp)) {
                                 Text(
-                                    "Auto Backup Schedule",
+                                    stringResource(R.string.auto_backup_schedule),
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold
                                 )
@@ -244,7 +274,7 @@ fun BackupScreen(
                                     if (schedule.enabled) {
                                         // Frequency Selector
                                         Text(
-                                            "Frequency",
+                                            stringResource(R.string.frequency),
                                             style = MaterialTheme.typography.labelSmall,
                                             modifier = Modifier.padding(bottom = 8.dp)
                                         )
@@ -283,28 +313,6 @@ fun BackupScreen(
                                             }
                                         }
 
-                                        // WiFi Only
-                                        Row(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .padding(bottom = 8.dp),
-                                            horizontalArrangement = Arrangement.SpaceBetween,
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Text(stringResource(R.string.wifi_only))
-                                            Switch(
-                                                checked = schedule.wifiOnly,
-                                                onCheckedChange = { wifiOnly ->
-                                                    viewModel.updateBackupSchedule(
-                                                        enabled = schedule.enabled,
-                                                        frequency = schedule.frequency,
-                                                        wifiOnly = wifiOnly,
-                                                        chargingOnly = schedule.chargingOnly
-                                                    )
-                                                }
-                                            )
-                                        }
-
                                         // Charging Only
                                         Row(
                                             modifier = Modifier.fillMaxWidth(),
@@ -333,7 +341,7 @@ fun BackupScreen(
                     // Backups List Section
                     item {
                         Text(
-                            "Recent Backups",
+                            stringResource(R.string.recent_backups),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(bottom = 8.dp)
@@ -349,7 +357,7 @@ fun BackupScreen(
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
-                                    "No backups yet",
+                                    stringResource(R.string.no_backups_yet),
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -359,8 +367,11 @@ fun BackupScreen(
                         items(uiState.backups) { backup ->
                             BackupListItem(
                                 backup = backup,
-                                onRestore = {
-                                    viewModel.restoreBackup(backup.id)
+                                onShare = {
+                                    viewModel.shareBackup(backup.id)
+                                },
+                                onDownload = {
+                                    viewModel.downloadBackup(backup.id)
                                 },
                                 onDelete = {
                                     viewModel.deleteBackup(backup.id)
@@ -390,7 +401,8 @@ fun BackupScreen(
 @Composable
 private fun BackupListItem(
     backup: BackupMetadata,
-    onRestore: () -> Unit,
+    onShare: () -> Unit,
+    onDownload: () -> Unit,
     onDelete: () -> Unit
 ) {
     Card(
@@ -423,10 +435,17 @@ private fun BackupListItem(
                     )
                 }
                 Row {
-                    IconButton(onClick = onRestore) {
+                    IconButton(onClick = onShare) {
+                        Icon(
+                            Icons.Default.Share,
+                            contentDescription = stringResource(R.string.share_backup),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                    IconButton(onClick = onDownload) {
                         Icon(
                             Icons.Default.FileDownload,
-                            contentDescription = stringResource(R.string.restore_backup),
+                            contentDescription = "Download",
                             tint = MaterialTheme.colorScheme.primary
                         )
                     }
@@ -457,7 +476,7 @@ private fun CreateBackupDialog(
         text = {
             Column {
                 Text(
-                    "Backup Name",
+                    stringResource(R.string.backup_name),
                     style = MaterialTheme.typography.labelSmall
                 )
                 androidx.compose.material3.TextField(

@@ -135,15 +135,16 @@
     <string name="save_message">Save</string>
     <string name="message_label">Message</string>
     <string name="clear_filters">Clear Filters</string>
-    <string name="backup_share_title">Backup &amp; Restore</string>
+    <string name="backup_share_title">Manage Backups</string>
     <string name="create_backup_now">Create Backup Now</string>
     <string name="enable_auto_backup">Enable Auto Backup</string>
     <string name="wifi_only">WiFi Only</string>
     <string name="charging_only">Charging Only</string>
     <string name="restore_backup">Restore</string>
+    <string name="share_backup">Share</string>
     <string name="delete_backup">Delete</string>
     <string name="create_backup_title">Create Backup</string>
-    <string name="backup_placeholder">e.g., Backup ${System.currentTimeMillis()}</string>
+    <string name="backup_placeholder">e.g., Important backup</string>
     <string name="enable_encryption">Enable Encryption</string>
     <string name="delete_all_data_confirmation">Delete All Data?</string>
     <string name="delete_all_data_message">This will permanently delete all records and settings. This action cannot be undone.</string>
@@ -234,4 +235,20 @@
     <string name="error_description_required">Description is required</string>
     <string name="error_type_required">Maintenance type is required</string>
     <string name="error_generic">Error creating maintenance</string>
+
+    <!-- Backup screen -->
+    <string name="storage_information">Storage Information</string>
+    <string name="available_storage">Available Storage</string>
+    <string name="database_size">Database Size</string>
+    <string name="create_backup_section">Create Backup</string>
+    <string name="auto_backup_schedule">Auto Backup Schedule</string>
+    <string name="frequency">Frequency</string>
+    <string name="recent_backups">Recent Backups</string>
+    <string name="no_backups_yet">No backups yet</string>
+    <string name="backup_name">Backup Name</string>
+    <string name="backup_schedule_updated">Backup schedule updated</string>
+    <string name="failed_update_schedule">Failed to update backup schedule</string>
+    <string name="error_loading_backups">Error loading backup data</string>
+    <string name="failed_load_backups">Failed to load backups</string>
+    <string name="failed_create_backup">Failed to create backup</string>
 </resources>

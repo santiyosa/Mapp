@@ -1,7 +1,13 @@
 package com.maintenance.app.presentation.viewmodels.backup
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.os.Environment
+import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.maintenance.app.R
 import com.maintenance.app.domain.model.BackupConfig
 import com.maintenance.app.domain.model.BackupFrequency
 import com.maintenance.app.domain.model.BackupMetadata
@@ -15,11 +21,13 @@ import com.maintenance.app.domain.usecases.backup.GetLocalDatabaseSizeUseCase
 import com.maintenance.app.domain.usecases.backup.RestoreBackupUseCase
 import com.maintenance.app.domain.usecases.backup.UpdateBackupScheduleUseCase
 import com.maintenance.app.utils.Result
+import com.maintenance.app.utils.ResourceProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.io.File
 import javax.inject.Inject
 
 /**
@@ -39,6 +47,8 @@ data class BackupUiState(
 
 @HiltViewModel
 class BackupViewModel @Inject constructor(
+    private val context: Context,
+    private val resourceProvider: ResourceProvider,
     private val createBackupUseCase: CreateBackupUseCase,
     private val restoreBackupUseCase: RestoreBackupUseCase,
     private val deleteBackupUseCase: DeleteBackupUseCase,
@@ -69,7 +79,7 @@ class BackupViewModel @Inject constructor(
                 _uiState.value = _uiState.value.copy(isGoogleDriveConnected = true)
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
-                    errorMessage = e.message ?: "Error loading backup data",
+                    errorMessage = e.message ?: resourceProvider.getString(R.string.error_loading_backups),
                     isLoading = false
                 )
             }
@@ -91,7 +101,7 @@ class BackupViewModel @Inject constructor(
                 }
                 is Result.Error -> {
                     _uiState.value = _uiState.value.copy(
-                        errorMessage = result.message ?: "Failed to load backups",
+                        errorMessage = result.message ?: resourceProvider.getString(R.string.failed_load_backups),
                         isLoading = false
                     )
                 }
@@ -175,7 +185,7 @@ class BackupViewModel @Inject constructor(
                     }
                     is Result.Error -> {
                         _uiState.value = _uiState.value.copy(
-                            errorMessage = result.message ?: "Failed to create backup",
+                            errorMessage = result.message ?: resourceProvider.getString(R.string.failed_create_backup),
                             isCreatingBackup = false
                         )
                     }
@@ -183,7 +193,7 @@ class BackupViewModel @Inject constructor(
             }
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
-                    errorMessage = e.message ?: "Failed to create backup",
+                    errorMessage = e.message ?: resourceProvider.getString(R.string.failed_create_backup),
                     isCreatingBackup = false
                 )
             }
@@ -286,7 +296,7 @@ class BackupViewModel @Inject constructor(
                     is Result.Success -> {
                         _uiState.value = _uiState.value.copy(
                             backupSchedule = schedule,
-                            successMessage = "Backup schedule updated"
+                            successMessage = resourceProvider.getString(R.string.backup_schedule_updated)
                         )
                         // Clear success message after 3 seconds
                         kotlinx.coroutines.delay(3000)
@@ -294,14 +304,14 @@ class BackupViewModel @Inject constructor(
                     }
                     is Result.Error -> {
                         _uiState.value = _uiState.value.copy(
-                            errorMessage = result.message ?: "Failed to update backup schedule"
+                            errorMessage = result.message ?: resourceProvider.getString(R.string.failed_update_schedule)
                         )
                     }
                 is Result.Loading -> {}
             }
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
-                    errorMessage = e.message ?: "Failed to update backup schedule"
+                    errorMessage = e.message ?: resourceProvider.getString(R.string.failed_update_schedule)
                 )
             }
         }
@@ -321,6 +331,187 @@ class BackupViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
             loadBackupList()
+        }
+    }
+
+    /**
+     * Restore backup from a URI (file selected from device).
+     * Reads the backup data and merges it with the current database.
+     */
+    fun restoreBackupFromUri(uri: Uri) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+            try {
+                // Read the file from URI
+                android.util.Log.d("BackupViewModel", "Restore: Reading from URI: $uri")
+                val inputStream = context.contentResolver.openInputStream(uri)
+                    ?: throw Exception("Failed to open file")
+                
+                val backupData = inputStream.readBytes()
+                inputStream.close()
+                
+                android.util.Log.d("BackupViewModel", "Restore: Read ${backupData.size} bytes from URI")
+                
+                // Copy to backups directory temporarily for restoration
+                val backupDir = File(context.getExternalFilesDir(null), "backups")
+                if (!backupDir.exists()) {
+                    backupDir.mkdirs()
+                }
+                
+                val tempRestoreFile = File(backupDir, "restore_temp_${System.currentTimeMillis()}.backup")
+                tempRestoreFile.writeBytes(backupData)
+                
+                android.util.Log.d("BackupViewModel", "Restore: Copied ${backupData.size} bytes to ${tempRestoreFile.absolutePath}")
+                
+                // Now use the restore backup use case with the file in the backups directory
+                val tempBackupId = tempRestoreFile.nameWithoutExtension
+                android.util.Log.d("BackupViewModel", "Restore: Starting restore with backupId=$tempBackupId")
+                
+                val result = restoreBackupUseCase(
+                    RestoreBackupUseCase.Params(backupId = tempBackupId)
+                )
+                
+                android.util.Log.d("BackupViewModel", "Restore: Use case returned ${result::class.simpleName}")
+                
+                // Clean up temp file
+                tempRestoreFile.delete()
+                
+                when (result) {
+                    is Result.Success -> {
+                        _uiState.value = _uiState.value.copy(
+                            successMessage = "Backup restored successfully from file",
+                            isLoading = false
+                        )
+                        // Reload backups list
+                        loadBackupList()
+                        // Clear success message after 3 seconds
+                        kotlinx.coroutines.delay(3000)
+                        _uiState.value = _uiState.value.copy(successMessage = null)
+                    }
+                    is Result.Error -> {
+                        _uiState.value = _uiState.value.copy(
+                            errorMessage = result.message ?: "Failed to restore backup from file",
+                            isLoading = false
+                        )
+                    }
+                    is Result.Loading -> {}
+                }
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    errorMessage = e.message ?: "Failed to restore backup from file",
+                    isLoading = false
+                )
+            }
+        }
+    }
+
+    /**
+     * Share a backup file.
+     * Opens the system share dialog to share the backup file.
+     */
+    fun shareBackup(backupId: String) {
+        viewModelScope.launch {
+            try {
+                val backup = _uiState.value.backups.find { it.id == backupId }
+                if (backup != null) {
+                    val backupFile = File(backup.filePath)
+                    if (backupFile.exists()) {
+                        // Create a URI using FileProvider
+                        val uri = FileProvider.getUriForFile(
+                            context,
+                            "${context.packageName}.fileprovider",
+                            backupFile
+                        )
+                        
+                        // Create share intent
+                        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                            type = "application/octet-stream"
+                            putExtra(Intent.EXTRA_STREAM, uri)
+                            putExtra(Intent.EXTRA_SUBJECT, "Backup: ${backup.name}")
+                            putExtra(Intent.EXTRA_TEXT, "Backup file from Maintenance App")
+                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        }
+                        
+                        // Start chooser with FLAG_ACTIVITY_NEW_TASK
+                        val chooser = Intent.createChooser(shareIntent, "Share Backup")
+                        chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        context.startActivity(chooser)
+                        
+                        _uiState.value = _uiState.value.copy(
+                            successMessage = "Sharing backup: ${backup.name}"
+                        )
+                        kotlinx.coroutines.delay(2000)
+                        _uiState.value = _uiState.value.copy(successMessage = null)
+                    } else {
+                        _uiState.value = _uiState.value.copy(
+                            errorMessage = "Backup file not found"
+                        )
+                    }
+                } else {
+                    _uiState.value = _uiState.value.copy(
+                        errorMessage = "Backup not found"
+                    )
+                }
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    errorMessage = e.message ?: "Failed to share backup"
+                )
+            }
+        }
+    }
+
+    /**
+     * Download a backup file to the device's Downloads folder.
+     */
+    fun downloadBackup(backupId: String) {
+        viewModelScope.launch {
+            try {
+                val backup = _uiState.value.backups.find { it.id == backupId }
+                if (backup != null) {
+                    val sourceFile = File(backup.filePath)
+                    android.util.Log.d("BackupViewModel", "Download: sourceFile exists=${sourceFile.exists()}, path=${sourceFile.absolutePath}, size=${sourceFile.length()} bytes")
+                    
+                    if (sourceFile.exists()) {
+                        // Get Downloads directory
+                        val downloadsDir = Environment.getExternalStoragePublicDirectory(
+                            Environment.DIRECTORY_DOWNLOADS
+                        )
+                        
+                        if (!downloadsDir.exists()) {
+                            downloadsDir.mkdirs()
+                        }
+                        
+                        // Create destination file
+                        val destFile = File(
+                            downloadsDir,
+                            "${backup.name}_${System.currentTimeMillis()}.backup"
+                        )
+                        
+                        // Copy file
+                        sourceFile.copyTo(destFile, overwrite = true)
+                        
+                        android.util.Log.d("BackupViewModel", "Download: COPIED to ${destFile.absolutePath}, size=${destFile.length()} bytes")
+                        
+                        _uiState.value = _uiState.value.copy(
+                            successMessage = "Backup downloaded to: ${destFile.name}"
+                        )
+                        kotlinx.coroutines.delay(3000)
+                        _uiState.value = _uiState.value.copy(successMessage = null)
+                    } else {
+                        _uiState.value = _uiState.value.copy(
+                            errorMessage = "Backup file not found"
+                        )
+                    }
+                } else {
+                    _uiState.value = _uiState.value.copy(
+                        errorMessage = "Backup not found"
+                    )
+                }
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    errorMessage = e.message ?: "Failed to download backup"
+                )
+            }
         }
     }
 }
